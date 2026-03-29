@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Leak — The Tank</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;1,300&family=Inconsolata:wght@300;400&display=swap');
+
+:root {
+  --teal:   #00c8aa;
+  --ink:    #c8d4e8;
+  --muted:  rgba(180,200,230,0.28);
+  --bg:     #03060d;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  font-family: 'Inconsolata', monospace;
+  color: var(--ink);
+}
+
+/* ── BACKGROUND IMAGE ── */
+/* Replace 'your-image.jpg' with your actual filename */
+#tank-bg {
+  position: fixed; inset: 0; z-index: 0;
+  background-image: url('bg.png'); /* ← YOUR IMAGE HERE */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Dark overlay so fish stay visible */
+#tank-bg::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(3,6,13,0.55) 0%,
+    rgba(3,6,13,0.3)  50%,
+    rgba(3,6,13,0.65) 100%
+  );
+}
+
+/* ── PARTICLE NETWORK (subtle, over image) ── */
+#networkCanvas {
+  position: fixed; inset: 0; z-index: 1;
+  opacity: 0.4;
+}
+
+/* ── FISH CANVAS ── */
+#tankCanvas {
+  position: fixed; inset: 0; z-index: 2;
+}
+
+/* ── UI OVERLAY ── */
+#ui {
+  position: fixed; inset: 0; z-index: 10;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 36px 44px;
+}
+
+.ui-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.ui-wordmark {
+  font-size: 9px;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--teal);
+  opacity: 0.7;
+}
+
+.ui-count {
+  text-align: right;
+}
+.ui-count-num {
+  font-family: 'Cormorant', serif;
+  font-weight: 300;
+  font-size: 42px;
+  line-height: 1;
+  color: var(--ink);
+  opacity: 0.6;
+}
+.ui-count-lbl {
+  font-size: 8px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.ui-bottom {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.ui-thesis {
+  font-family: 'Cormorant', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(14px, 1.8vw, 18px);
+  color: rgba(180,200,230,0.35);
+  max-width: 380px;
+  line-height: 1.7;
+}
+
+.ui-pulse {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 8px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(0,200,170,0.35);
+}
+.pulse-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--teal);
+  opacity: 0.5;
+  animation: pulse 2.4s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 0.2; transform: scale(1); }
+  50%       { opacity: 0.7; transform: scale(1.3); }
+}
+</style>
+</head>
+<body>
+
+<div id="tank-bg"></div>
+<canvas id="networkCanvas"></canvas>
+<canvas id="tankCanvas"></canvas>
+
+<div id="ui">
+  <div class="ui-top">
+    <div class="ui-wordmark">Data Leak</div>
+    <div class="ui-count">
+      <div class="ui-count-num" id="fishCount">0</div>
+      <div class="ui-count-lbl">fish released</div>
+    </div>
+  </div>
+  <div class="ui-bottom">
+    <div class="ui-thesis">
+      Your data tells a story.<br>Make sure it's one you chose to tell.
+    </div>
+    <div class="ui-pulse">
+      <div class="pulse-dot"></div>
+      Live
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════
+   NETWORK BACKGROUND
+══════════════════════════════════════════ */
+const netC = document.getElementById('networkCanvas');
+const netX = netC.getContext('2d');
+let NW, NH;
+const NP = [];
+
+function resizeNet() {
+  NW = netC.width  = window.innerWidth;
+  NH = netC.height = window.innerHeight;
+}
+resizeNet();
+window.addEventListener('resize', resizeNet);
+
+for (let i = 0; i < 50; i++) NP.push({
+  x: Math.random(), y: Math.random(),
+  vx: (Math.random()-.5)*.00018, vy: (Math.random()-.5)*.00018,
+  r: Math.random()*1.1+.2,
+  a: Math.random()*.25+.05,
+  h: 165+Math.random()*30
+});
+
+function animNet() {
+  netX.clearRect(0,0,NW,NH);
+  for (let i=0;i<NP.length;i++) {
+    const p=NP[i];
+    p.x=(p.x+p.vx+1)%1; p.y=(p.y+p.vy+1)%1;
+    netX.beginPath(); netX.arc(p.x*NW,p.y*NH,p.r,0,Math.PI*2);
+    netX.fillStyle=`hsla(${p.h},70%,55%,${p.a})`; netX.fill();
+    for(let j=i+1;j<NP.length;j++){
+      const q=NP[j];
+      const dx=(p.x-q.x)*NW, dy=(p.y-q.y)*NH;
+      const d=Math.sqrt(dx*dx+dy*dy);
+      if(d<110){
+        netX.beginPath();
+        netX.moveTo(p.x*NW,p.y*NH); netX.lineTo(q.x*NW,q.y*NH);
+        netX.strokeStyle=`rgba(0,200,170,${.04*(1-d/110)})`;
+        netX.lineWidth=.4; netX.stroke();
+      }
+    }
+  }
+  requestAnimationFrame(animNet);
+}
+animNet();
+
+/* ══════════════════════════════════════════
+   FISH ENGINE
+══════════════════════════════════════════ */
+const tankC = document.getElementById('tankCanvas');
+const tankX = tankC.getContext('2d');
+let TW, TH;
+
+function resizeTank() {
+  TW = tankC.width  = window.innerWidth;
+  TH = tankC.height = window.innerHeight;
+}
+resizeTank();
+window.addEventListener('resize', resizeTank);
+
+// Each fish has position, velocity, DNA, and a local time offset
+const tankFish = [];
+let globalT = 0;
+
+function makeFish(dna) {
+  // Spawn from a random edge
+  const edge = Math.floor(Math.random()*4);
+  let x, y, vx, vy;
+  const spd = 0.4 + dna.e * 0.9;
+  if (edge===0) { x=Math.random()*TW; y=-40;   vx=(Math.random()-.5)*.4; vy=spd;  }
+  else if(edge===1){ x=TW+40; y=Math.random()*TH; vx=-spd; vy=(Math.random()-.5)*.4; }
+  else if(edge===2){ x=Math.random()*TW; y=TH+40; vx=(Math.random()-.5)*.4; vy=-spd; }
+  else            { x=-40; y=Math.random()*TH;   vx=spd;  vy=(Math.random()-.5)*.4; }
+
+  return {
+    x, y, vx, vy,
+    dna,
+    t: Math.random()*100, // unique time offset so each fish undulates differently
+    wander: Math.random()*Math.PI*2,
+    wanderSpd: (Math.random()-.5)*.012,
+    scale: 0, // fade in
+  };
+}
+
+function drawTankFish(fish) {
+  const { x, y, dna, t } = fish;
+  // Scale in on arrival
+  if (fish.scale < 1) fish.scale = Math.min(1, fish.scale + 0.008);
+
+  const W = 160 + dna.e * 80;
+  const H = 70  + dna.e * 30;
+  const sc = fish.scale;
+
+  tankX.save();
+  tankX.translate(x, y);
+
+  // Flip to face direction of travel
+  const facingLeft = fish.vx < 0;
+  if (facingLeft) tankX.scale(-sc, sc);
+  else            tankX.scale(sc, sc);
+
+  const bL = W * dna.size * .78;
+  const bH = H * .28 * dna.size;
+  const spd = dna.speed;
+  const N = 60;
+  const pts = [];
+  const cx2 = 0, cy2 = 0;
+
+  for(let i=0;i<=N;i++){
+    const tt=i/N;
+    const wave=Math.sin(t*spd*1.9-tt*Math.PI*2.3)*H*.038*tt;
+    const belly=Math.sin(tt*Math.PI)*(1+Math.sin(tt*7+t*.4)*.09);
+    pts.push({ x:cx2-bL*.5+bL*tt, y:cy2+wave, w:bH*belly });
+  }
+
+  const h=dna.hue, s=dna.sat;
+
+  // Body
+  tankX.beginPath();
+  tankX.moveTo(pts[0].x, pts[0].y);
+  for(let i=1;i<pts.length;i++) tankX.lineTo(pts[i].x, pts[i].y-pts[i].w*.5);
+  for(let i=pts.length-1;i>=0;i--) tankX.lineTo(pts[i].x, pts[i].y+pts[i].w*.5);
+  tankX.closePath();
+  const bg = tankX.createLinearGradient(-bL*.5,0,bL*.5,0);
+  bg.addColorStop(0,   `hsla(${h},${s}%,36%,0)`);
+  bg.addColorStop(.2,  `hsla(${h},${s}%,40%,${dna.glow*.6})`);
+  bg.addColorStop(.52, `hsla(${h+8},${s+8}%,52%,${dna.glow})`);
+  bg.addColorStop(.82, `hsla(${h},${s}%,36%,${dna.glow*.5})`);
+  bg.addColorStop(1,   `hsla(${h},${s}%,28%,0)`);
+  tankX.fillStyle=bg; tankX.fill();
+
+  // Scales
+  for(let i=0;i<dna.scales;i++){
+    const tt=.12+(i/dna.scales)*.74;
+    const sp=pts[Math.floor(tt*N)];
+    if(!sp) continue;
+    tankX.beginPath();
+    tankX.moveTo(sp.x,sp.y-sp.w*.5);
+    tankX.lineTo(sp.x+sp.w*.22,sp.y);
+    tankX.lineTo(sp.x,sp.y+sp.w*.5);
+    tankX.strokeStyle=`hsla(${h+18},85%,78%,.1)`;
+    tankX.lineWidth=.5; tankX.stroke();
+  }
+
+  // Dorsal
+  const dp=pts[Math.floor(N*.44)];
+  if(dp){
+    tankX.beginPath();
+    tankX.moveTo(dp.x-bL*.11,dp.y-dp.w*.45);
+    tankX.quadraticCurveTo(dp.x,dp.y-bH*(.56+Math.sin(t*1.2)*.05),dp.x+bL*.11,dp.y-dp.w*.45);
+    tankX.strokeStyle=`hsla(${h},${s}%,60%,.28)`; tankX.lineWidth=.7; tankX.stroke();
+  }
+
+  // Tail
+  const tl=pts[0];
+  const fl=Math.sin(t*spd*2.05)*H*.09;
+  tankX.beginPath();
+  tankX.moveTo(tl.x,tl.y);
+  tankX.quadraticCurveTo(tl.x-bL*.1,tl.y+fl*1.3,tl.x-bL*.14,tl.y+fl);
+  tankX.moveTo(tl.x,tl.y);
+  tankX.quadraticCurveTo(tl.x-bL*.1,tl.y-fl*1.3,tl.x-bL*.14,tl.y-fl);
+  tankX.strokeStyle=`hsla(${h},${s}%,58%,.38)`; tankX.lineWidth=.9; tankX.stroke();
+
+  // Eye
+  const ep=pts[Math.floor(N*.88)];
+  if(ep){
+    const ex=ep.x+bL*.005, ey=ep.y-ep.w*.18;
+    tankX.beginPath(); tankX.arc(ex,ey,2,0,Math.PI*2);
+    tankX.fillStyle=`hsla(${h+25},100%,82%,.88)`; tankX.fill();
+  }
+
+  // Data particles
+  for(let p=0;p<dna.pts;p++){
+    const prog=((t*.3+p*.44)%1);
+    const src=pts[Math.floor(N*(.22+p*.055))];
+    if(!src) continue;
+    const px=src.x+(Math.sin(p*2.1)*bL*.28)*prog;
+    const py=src.y-src.w*.5-prog*H*.18+Math.cos(p*1.9)*H*.07;
+    tankX.beginPath(); tankX.arc(px,py,.8,0,Math.PI*2);
+    tankX.fillStyle=`rgba(0,200,170,${(1-prog)*.32})`; tankX.fill();
+  }
+
+  tankX.restore();
+}
+
+function updateFish(fish) {
+  fish.t += .015;
+
+  // Wander — gentle direction drift
+  fish.wander += fish.wanderSpd;
+  fish.vx += Math.cos(fish.wander) * .004;
+  fish.vy += Math.sin(fish.wander) * .003;
+
+  // Speed clamp
+  const spd = 0.4 + fish.dna.e * 0.9;
+  const curr = Math.sqrt(fish.vx*fish.vx+fish.vy*fish.vy);
+  if(curr > spd*1.4){ fish.vx*=spd*1.4/curr; fish.vy*=spd*1.4/curr; }
+  if(curr < spd*.5) { fish.vx*=spd*.5/curr;  fish.vy*=spd*.5/curr;  }
+
+  // Soft boundary repulsion — fish drift back toward center when near edge
+  const margin = 120;
+  if(fish.x < margin)   fish.vx += .03;
+  if(fish.x > TW-margin) fish.vx -= .03;
+  if(fish.y < margin)   fish.vy += .02;
+  if(fish.y > TH-margin) fish.vy -= .02;
+
+  fish.x += fish.vx;
+  fish.y += fish.vy;
+}
+
+/* ══════════════════════════════════════════
+   DEMO FISH — auto-populate with variety
+══════════════════════════════════════════ */
+const DEMO_PROFILES = [
+  { e:0.05 }, { e:0.2  }, { e:0.35 }, { e:0.5  },
+  { e:0.65 }, { e:0.78 }, { e:0.88 }, { e:1.0  },
+];
+
+function buildDNA(e) {
+  return {
+    e,
+    hue:    175 - e*45,
+    sat:    50  + e*38,
+    size:   0.52 + e*0.36,
+    speed:  0.75 + e*1.5,
+    pts:    Math.floor(e*20),
+    glow:   0.35 + e*0.55,
+    scales: Math.floor(5 + e*13),
+  };
+}
+
+// Stagger fish appearing over first 8 seconds
+DEMO_PROFILES.forEach((p, i) => {
+  setTimeout(() => {
+    tankFish.push(makeFish(buildDNA(p.e)));
+    updateCount();
+  }, i * 1000 + 500);
+});
+
+function updateCount() {
+  document.getElementById('fishCount').textContent = tankFish.length;
+}
+
+/* ══════════════════════════════════════════
+   MAIN LOOP
+══════════════════════════════════════════ */
+function loop() {
+  tankX.clearRect(0,0,TW,TH);
+  globalT += .012;
+
+  tankFish.forEach(fish => {
+    updateFish(fish);
+    drawTankFish(fish);
+  });
+
+  requestAnimationFrame(loop);
+}
+loop();
+
+/* ══════════════════════════════════════════
+   ADD FISH FROM SURVEY
+   Call addFishToTank(dna) from the survey
+   page, or wire up via localStorage/websocket
+══════════════════════════════════════════ */
+function addFishToTank(dna) {
+  tankFish.push(makeFish(dna));
+  updateCount();
+}
+
+// Listen for fish released from the survey page (same browser, different tab)
+window.addEventListener('storage', (e) => {
+  if (e.key === 'datafish-release') {
+    try {
+      const dna = JSON.parse(e.newValue);
+      addFishToTank(dna);
+    } catch(_) {}
+  }
+});
+</script>
+</body>
+</html>

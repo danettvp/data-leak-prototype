@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Leak</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+
+<!-- ── WELCOME ── -->
+<div class="screen active" id="s-welcome">
+  <div class="w-logo">Data Leak</div>
+  <div class="w-title">Your data<br>has a <em>shape.</em></div>
+  <div class="w-divider"></div>
+  <div class="w-body">
+    You share. You connect. You live online.<br>
+    <strong>That's not the problem.</strong><br>
+  </div>
+  <button class="btn" id="btnStart">
+    <span class="btn-label">Create my fish</span>
+  </button>
+
+  <!-- View Tank -->
+  <a href="tank.html">
+    <button class="btn" id="btnTank">
+      <span class="btn-label">View Tank</span>
+    </button>
+  </a>
+
+</div>
+
+<!-- ── QUESTION ── -->
+<div class="screen" id="s-question">
+  <div class="q-shell">
+    <div class="q-topbar">
+      <div class="q-brand">Data Leak</div>
+      <div class="q-counter" id="qCounter">01 / 04</div>
+    </div>
+    <div class="q-progress" id="qProgress"></div>
+    <div class="q-num" id="qNum">Question 01</div>
+    <div class="q-text" id="qText"></div>
+    <div class="q-sub" id="qSub"></div>
+    <div class="q-options" id="qOptions"></div>
+    <div class="q-insight" id="qInsight">
+      <div class="qi-label">Did you know</div>
+      <div class="qi-text" id="qInsightText"></div>
+    </div>
+    <div class="q-footer">
+      <div class="fish-forming">
+        <canvas id="miniCanvas"></canvas>
+        <div class="fish-forming-lbl">your fish, forming</div>
+      </div>
+      <button class="btn-next" id="btnNext">
+        <span id="btnNextTxt">Next &nbsp;→</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── BUILDING ── -->
+<div class="screen" id="s-building">
+  <div class="build-label">Growing your fish</div>
+  <canvas id="buildCanvas"></canvas>
+  <div class="build-status" id="buildStatus">Reading your answers…</div>
+</div>
+
+<!-- ── REVEAL ── -->
+<div class="screen" id="s-reveal">
+  <div class="rv-eyebrow">Meet your data fish</div>
+  <div class="rv-title" id="rvTitle"></div>
+  <div class="rv-subtitle">Shaped by your answers. Uniquely yours.</div>
+  <div class="rv-fish-wrap">
+    <canvas id="revealCanvas"></canvas>
+  </div>
+  <div class="rv-traits" id="rvTraits"></div>
+  <div class="rv-msg" id="rvMsg"></div>
+  <div class="rv-release-wrap">
+    <button class="btn-release" id="btnRelease">
+      <span>Release into the tank &nbsp;↗</span>
+    </button>
+  </div>
+</div>
+
+<!-- ── RELEASED ── -->
+<div class="screen" id="s-released">
+  <div class="rel-title">Your fish<br><em>is free.</em></div>
+  <div class="rel-sub">
+    It's swimming with the others now —<br>
+    each one a different story about life online.
+  </div>
+  <div class="rel-thesis">Your data tells a story. Make sure it's one you chose to tell.</div>
+  <button class="rel-again" id="btnAgain">Start again ↺</button>
+</div>
+
+<!--
+  Firebase must use type="module".
+  We initialise it here and expose window.__db,
+  then dynamically append script.js so it loads after __db is ready.
+-->
+<script type="module">
+  import { initializeApp }  from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+  import { getFirestore }   from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey:            "AIzaSyDYyK21_8Wv4CfJMCaZQ4WwVaOot56jklQ",
+    authDomain:        "data-leak-97bd3.firebaseapp.com",
+    projectId:         "data-leak-97bd3",
+    storageBucket:     "data-leak-97bd3.firebasestorage.app",
+    messagingSenderId: "717887614183",
+    appId:             "1:717887614183:web:70abdc99d605c46d394642",
+    measurementId:     "G-EVYM1TQSBY"
+  };
+
+  const app    = initializeApp(firebaseConfig);
+  window.__db  = getFirestore(app);   // script.js reads this as window.__db
+
+  // Dynamically load script.js only after __db exists
+  const s  = document.createElement('script');
+  s.src    = 'script.js';
+  document.body.appendChild(s);
+</script>
+
+</body>
+</html>

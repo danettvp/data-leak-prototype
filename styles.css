@@ -5,8 +5,8 @@
   --ink:     #dce8f8;
   --muted:   rgba(180,200,230,0.42);
   --faint:   rgba(180,200,230,0.08);
-  --teal:    #00c8aa;
-  --teal2:   #00edd0;
+  --teal:    #4DE8EF;
+  --teal2:   #4DE8EF;
   --tealg:   rgba(0,200,170,0.09);
   --border:  rgba(0,200,170,0.2);
 }
@@ -591,41 +591,50 @@ html, body {
 }
 
 
-/* ══════════════════════════════════════
-   RELEASED
-══════════════════════════════════════ */
-#s-released { gap: 0; text-align: center; }
+#s-released { gap: 0; text-align: center; flex-direction: column; }
 
 .rel-title {
-  font-size: 58px;
+  font-size: 42px;
   font-weight: 700;
-  line-height: 1.05;
-  margin-bottom: 18px;
+  line-height: 1.15;
+  max-width: 560px;
+  margin-bottom: 40px;
   opacity: 0;
   animation: riseIn 1.2s 0.2s forwards;
 }
-.rel-title em { font-style: italic; font-weight: 200; }
+
+.rel-qr {
+  width: 180px;
+  height: 180px;
+  margin: 0 auto 36px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgba(180,200,230,0.06);
+  border: 1px solid rgba(180,200,230,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  animation: riseIn 1s 0.5s forwards;
+}
+.rel-qr-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
 
 .rel-sub {
-  font-size: 17px;
+  font-size: 14px;
   font-weight: 300;
-  color: rgba(180,200,230,0.45);
-  max-width: 400px;
-  line-height: 1.75;
-  margin: 0 auto 14px;
-  opacity: 0;
-  animation: riseIn 0.8s 0.5s forwards;
-}
-.rel-thesis {
-  font-size: 9px;
-  font-weight: 400;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: rgba(0,200,170,0.38);
-  margin-bottom: 40px;
+  color: var(--teal);
+  max-width: 420px;
+  margin: 0 auto 40px;
+  line-height: 1.7;
   opacity: 0;
   animation: riseIn 0.8s 0.8s forwards;
 }
+
 .rel-again {
   font-family: 'Lexend', sans-serif;
   font-size: 10px;
@@ -643,6 +652,10 @@ html, body {
   animation: riseIn 0.8s 1.1s forwards;
 }
 .rel-again:active { color: var(--teal); }
+
+@media (hover: hover) and (pointer: fine) {
+  .rel-again:hover { color: var(--teal); }
+}
 
 
 /* ══════════════════════════════════════

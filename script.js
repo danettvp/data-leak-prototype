@@ -3,57 +3,71 @@
 ══════════════════════════════════════════ */
 const QS = [
   {
-    text: "When did you last share something online?",
-    sub: "A post, a story, a comment — anything counts.",
+    text: "When you post something, what matters most to you?",
+    sub: "Your instinct in the moment — not the ideal answer.",
     opts: [
-      { t: "Today",            v: 4, tag: "Broadcast" },
-      { t: "This week",        v: 3, tag: "Open"      },
-      { t: "A while ago",      v: 2, tag: "Curated"   },
-      { t: "I don't remember", v: 1, tag: "Private"   },
+      { t: "How it looks",                    v: 2, tag: "Curated"    },
+      { t: "How it will be perceived",        v: 3, tag: "Conscious"  },
+      { t: "Who will see it",                 v: 4, tag: "Selective"  },
+      { t: "Posting it quickly",              v: 1, tag: "Impulsive"  },
+      { t: "I don't think too much about it", v: 2, tag: "Relaxed"    },
     ],
     fact: "The average person generates 1.7MB of data every second — most of it without realising."
   },
   {
-    text: "Who do you think knows you best?",
-    sub: "Your habits, your interests, the things you reach for.",
+    text: "When an app asks for permissions, what do you do?",
+    sub: "Location, contacts, camera — that kind of thing.",
     opts: [
-      { t: "The people in my life, no question", v: 1, tag: "Aware"     },
-      { t: "Honestly, probably my phone",        v: 4, tag: "Exposed"   },
-      { t: "A bit of both",                      v: 2, tag: "Partial"   },
-      { t: "I haven't thought about it",         v: 3, tag: "Uncertain" },
+      { t: "Accept straight away",          v: 4, tag: "Open"       },
+      { t: "Skim quickly, then accept",     v: 3, tag: "Casual"     },
+      { t: "Decide case by case",           v: 2, tag: "Considered" },
+      { t: "Read everything carefully",     v: 1, tag: "Cautious"   },
+      { t: "Try to avoid it altogether",    v: 1, tag: "Resistant"  },
     ],
     fact: "Location data can reveal your home, workplace, religion, and relationships — even without a name attached."
   },
   {
-    text: "When was the last time you were recommended something online that felt a little too accurate?",
-    sub: "That thing you only thought about. The ad that knew.",
+    text: "When an online recommendation feels a little too accurate, how do you respond?",
+    sub: "That ad that knew. The suggestion that felt personal.",
     opts: [
-      { t: "Happens all the time", v: 4, tag: "Resistant" },
-      { t: "Occasionally",         v: 3, tag: "Wary"      },
-      { t: "Rarely",               v: 2, tag: "Uneasy"    },
-      { t: "I haven't noticed",    v: 1, tag: "Neutral"   },
+      { t: "Ignore it",                          v: 1, tag: "Unbothered" },
+      { t: "Notice it, then move on",            v: 2, tag: "Aware"      },
+      { t: "Get curious — retrace how it knew",  v: 3, tag: "Inquisitive"},
+      { t: "Feel genuinely uncomfortable",       v: 4, tag: "Uneasy"     },
+      { t: "Don't mind — it's convenient",       v: 1, tag: "Accepting"  },
     ],
     fact: "Ad platforms can infer your mental health, financial stress, and relationships from browsing patterns alone."
   },
   {
-    text: "If someone you care about scrolled through your posts, would you be okay with what they find?",
-    sub: "Everything you've shared, liked, or been tagged in.",
+    text: "When you stop using a platform, what do you think happens to your data?",
+    sub: "The account goes dormant — but does the data?",
     opts: [
-      { t: "Completely — I have nothing to hide",           v: 1, tag: "Trusting"  },
-      { t: "Mostly — a few things might raise eyebrows",    v: 2, tag: "Cautious"  },
-      { t: "Not entirely — I'd want to explain some of it", v: 3, tag: "Skeptical" },
-      { t: "I'd rather they didn't look",                   v: 4, tag: "Resigned"  },
+      { t: "It probably just stays there",    v: 3, tag: "Resigned"  },
+      { t: "It might get removed over time",  v: 1, tag: "Hopeful"   },
+      { t: "It depends on the platform",      v: 2, tag: "Pragmatic" },
+      { t: "I don't really think about that", v: 4, tag: "Unaware"   },
     ],
     fact: "In 2023 alone, over 4 billion records were exposed in data breaches. Most users were never directly notified."
+  },
+  {
+    text: "How much do you trust online platforms with your personal data?",
+    sub: "Your honest gut feeling.",
+    opts: [
+      { t: "More than I probably should",    v: 4, tag: "Trusting"  },
+      { t: "I generally trust them",         v: 3, tag: "Open"      },
+      { t: "I'm careful about what I share", v: 2, tag: "Guarded"   },
+      { t: "I don't trust them at all",      v: 1, tag: "Skeptical" },
+    ],
+    fact: "Most platform privacy policies are longer than Shakespeare's Hamlet — and designed not to be read."
   }
 ];
 
-const TRAIT_KEYS = ['Presence', 'Awareness', 'Feeling', 'Trust'];
+const TRAIT_KEYS = ['Sharing', 'Permissions', 'Awareness', 'Permanence'];
 const TRAIT_MAPS = [
-  ['Invisible', 'Selective', 'Open',     'Broadcast'],
-  ['Informed',  'Cautious',  'Hazy',     'Unaware'  ],
-  ['Neutral',   'Uneasy',    'Wary',     'Resistant'],
-  ['Trusting',  'Hopeful',   'Skeptical','Resigned' ],
+  ['Impulsive', 'Relaxed',   'Curated',    'Conscious',  'Selective'],
+  ['Resistant', 'Cautious',  'Considered', 'Casual',     'Open'     ],
+  ['Unbothered','Accepting', 'Aware',      'Inquisitive','Uneasy'   ],
+  ['Hopeful',   'Pragmatic', 'Resigned',   'Unaware',    'Unaware'  ],
 ];
 
 const TITLES = [
@@ -64,7 +78,7 @@ const TITLES = [
 ];
 
 const MESSAGES = [
-  `Your fish is small and calm — it moves <strong>deliberately</strong>. You share sparingly, and there's quiet power in that. Your data footprint is yours to define.`,
+  `Your fish is small and calm — it moves <strong>deliberately</strong>. You share sparingly and stay sceptical. Your data footprint is yours to define.`,
   `Your fish is balanced — engaged but considered. You live online with <strong>some intention</strong>. A little more awareness of where your data flows could make it entirely yours.`,
   `Your fish is bright and active. You share openly, and that openness has real value. <strong>Knowing where it goes</strong> is the difference between sharing and being harvested.`,
   `Your fish is vivid and restless — <strong>fully in the stream</strong>. Your data tells a rich story. The question worth asking: who else is reading it?`
@@ -123,7 +137,7 @@ function animBg() {
 animBg();
 
 /* ══════════════════════════════════════════
-   FIBRE FISH ENGINE  (verbatim from tank.html)
+   FIBRE FISH ENGINE
 ══════════════════════════════════════════ */
 function mulberry32(seed) {
   return function() {
@@ -229,7 +243,6 @@ function bodySlice(u, dna) {
   return { topY: -dorsalEnv*dna.dorsalHeight - bump, botY: bellyEnv*dna.bellyDepth };
 }
 
-// ctx passed in — works on any canvas element
 function drawFibreFish(ctx, dna, t) {
   const N         = dna.N;
   const halfLen   = dna.bodyLength / 2;
@@ -294,67 +307,37 @@ function drawFibreFish(ctx, dna, t) {
 }
 
 /* ══════════════════════════════════════════
-   FISH DNA — derived from questionnaire answers
-   Exposure score e (0–1) shapes the fish
+   FISH DNA
 ══════════════════════════════════════════ */
-// Seed mutates as the user answers — fish shape evolves question by question
 let sessionSeed = Math.floor(Math.random() * 999999);
 
 function getDNA() {
   const avg = answers.length
     ? answers.reduce((a,b) => a+b, 0) / answers.length
     : 1.5;
-  const e   = Math.min(1, (avg - 1) / 3); // 0 = private/calm → 1 = broadcast/exposed
+  const e = Math.min(1, (avg - 1) / 3);
 
   const rng = mulberry32(sessionSeed);
   const dna = generateFishDNA(rng);
 
-  // Override motion with exposure-driven values
-  dna.driftAmp   = 1   + e * 14;
-  dna.driftSpeed = 0.2 + e * 0.9;
-
-  // Line density: few sparse lines when private, many dense lines when exposed
+  dna.driftAmp    = 1   + e * 14;
+  dna.driftSpeed  = 0.2 + e * 0.9;
   dna.N           = Math.floor(8 + e * 50);
   dna.centreWidth = 8   - e * 5.5;
   dna.edgeWidth   = 2   - e * 1.5;
-
-  // Body scale: small & quiet → large & vivid
   dna.bodyLength  = (dna.bodyLength * 0.55) + e * (dna.bodyLength * 0.75);
 
   return dna;
 }
 
-/**
- * Ensures the canvas internal resolution matches its CSS display size
- */
-function setupCanvas(canvas) {
-  const dpr = window.devicePixelRatio || 1;
-  const rect = canvas.getBoundingClientRect();
-  canvas.width = rect.width * dpr;
-  canvas.height = rect.height * dpr;
-  const ctx = canvas.getContext('2d');
-  ctx.scale(dpr, dpr);
-  return ctx;
-}
-
-/**
- * Renders the fish with a corrective offset to center the body+tail ensemble
- */
 function renderFishToCanvas(canvas, ctx, dna, t, scale) {
   const w = canvas.width / (window.devicePixelRatio || 1);
   const h = canvas.height / (window.devicePixelRatio || 1);
-  
   ctx.clearRect(0, 0, w, h);
   ctx.save();
-  
-  // The fish nose is at +halfLen, tail root is at -halfLen.
-  // To center the whole visual (including tail), we shift the center 
-  // slightly to the right (approx 15% of body length).
   const tailOffset = (dna.bodyLength * 0.15) * scale;
-  
   ctx.translate(w / 2 + tailOffset, h / 2);
   ctx.scale(scale, scale);
-  
   drawFibreFish(ctx, dna, t);
   ctx.restore();
 }
@@ -367,12 +350,11 @@ const welcomeX = welcomeC.getContext('2d');
 welcomeC.width  = 520;
 welcomeC.height = 220;
 
-// Fixed calm fish for the landing screen
 const welcomeRng = mulberry32(42);
 const welcomeDNA = generateFishDNA(welcomeRng);
-welcomeDNA.driftAmp   = 2;
-welcomeDNA.driftSpeed = 0.22;
-welcomeDNA.N          = 16;
+welcomeDNA.driftAmp    = 2;
+welcomeDNA.driftSpeed  = 0.22;
+welcomeDNA.N           = 16;
 welcomeDNA.centreWidth = 5;
 welcomeDNA.edgeWidth   = 1.5;
 welcomeDNA.bodyLength *= 0.65;
@@ -386,7 +368,7 @@ function animWelcome() {
 animWelcome();
 
 /* ══════════════════════════════════════════
-   MINI PREVIEW  (question footer)
+   MINI PREVIEW
 ══════════════════════════════════════════ */
 const miniC = document.getElementById('miniCanvas');
 const miniX = miniC.getContext('2d');
@@ -435,7 +417,7 @@ function loadQ(idx) {
   document.getElementById('qText').textContent        = q.text;
   document.getElementById('qSub').textContent         = q.sub;
   document.getElementById('qInsightText').textContent = q.fact;
-  document.getElementById('btnNextTxt').textContent   = idx===QS.length-1 ? 'Build my fish  →' : 'Next  →';
+  document.getElementById('btnNextTxt').textContent   = idx===QS.length-1 ? 'Build my fish  \u2192' : 'Next  \u2192';
 
   const optsEl = document.getElementById('qOptions');
   optsEl.innerHTML = '';
@@ -469,7 +451,6 @@ function pickOpt(i, val, el) {
   el.classList.add('chosen');
   selectedOpt       = i;
   answers[currentQ] = val;
-  // Evolve seed from answers so the mini fish visibly changes each question
   sessionSeed = answers.reduce((acc, v, idx) => acc ^ (v * 6271 + idx * 1009), 314159);
   setTimeout(() => document.getElementById('qInsight').classList.add('open'), 350);
   setTimeout(() => document.getElementById('btnNext').classList.add('ready'), 500);
@@ -482,10 +463,10 @@ const buildC = document.getElementById('buildCanvas');
 const buildX = buildC.getContext('2d');
 
 const BUILD_STEPS = [
-  'Reading your answers…',
-  'Mapping your data shape…',
-  'Generating your fish…',
-  'Almost there…'
+  'Reading your answers\u2026',
+  'Mapping your data shape\u2026',
+  'Generating your fish\u2026',
+  'Almost there\u2026'
 ];
 
 function runBuildScreen() {
@@ -495,9 +476,9 @@ function runBuildScreen() {
   buildC.height = buildC.offsetHeight * (window.devicePixelRatio||1);
   buildX.scale(window.devicePixelRatio||1, window.devicePixelRatio||1);
 
-  let bT   = 0, step = 0;
-  const dna   = getDNA();
-  const scale = Math.min(buildC.offsetWidth, buildC.offsetHeight) / (dna.bodyLength * 3.2);
+  let bT = 0, step = 0;
+  const dna      = getDNA();
+  const scale    = Math.min(buildC.offsetWidth, buildC.offsetHeight) / (dna.bodyLength * 3.2);
   const statusEl = document.getElementById('buildStatus');
 
   const stepTimer = setInterval(() => {
@@ -535,12 +516,14 @@ function buildReveal() {
 
   const traitsEl = document.getElementById('rvTraits');
   traitsEl.innerHTML = '';
-  answers.forEach((v,i) => {
+  answers.slice(0, 4).forEach((v, i) => {
+    const map = TRAIT_MAPS[i];
+    const val = map[Math.min(v - 1, map.length - 1)];
     const d = document.createElement('div');
     d.className = 'rv-trait';
     d.innerHTML = `
       <div class="rv-trait-lbl">${TRAIT_KEYS[i]}</div>
-      <div class="rv-trait-val">${TRAIT_MAPS[i][v-1]}</div>
+      <div class="rv-trait-val">${val}</div>
     `;
     traitsEl.appendChild(d);
   });
@@ -567,21 +550,21 @@ function buildReveal() {
 }
 
 /* ══════════════════════════════════════════
-   RELEASE — saves seed to Firestore
+   RELEASE — Firestore write is non-blocking,
+   navigation fires immediately
 ══════════════════════════════════════════ */
-async function doRelease() {
-  try {
-    const { collection, addDoc, serverTimestamp } = await import(
-      "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js"
-    );
-    await addDoc(collection(window.__db, "fish"), {
-      seed: sessionSeed,
-      releasedAt: serverTimestamp()
-    });
-  } catch (err) {
-    console.error("Firestore write failed:", err);
-  }
+function doRelease() {
+  // Write to Firestore in background — never block navigation on it
+  import("https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js")
+    .then(({ collection, addDoc, serverTimestamp }) => {
+      addDoc(collection(window.__db, "fish"), {
+        seed: sessionSeed,
+        releasedAt: serverTimestamp()
+      }).catch(err => console.error("Firestore write failed:", err));
+    })
+    .catch(err => console.error("Firestore import failed:", err));
 
+  // Animate fish off screen, then navigate — no waiting on Firestore
   const wrap = document.querySelector('.rv-fish-wrap');
   wrap.style.transition = 'transform 1.6s cubic-bezier(0.4,0,0.1,1), opacity 1s 0.5s';
   wrap.style.transform  = 'translateX(130%) translateY(-24px)';

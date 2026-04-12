@@ -24,17 +24,15 @@ html, body {
   color: var(--ink);
 }
 
-/* ── BACKGROUND IMAGE ── */
-/* Replace 'your-image.jpg' with your actual filename */
 #tank-bg {
   position: fixed; inset: 0; z-index: 0;
-  background-image: url('bg.png'); /* ← YOUR IMAGE HERE */
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
 }
-
-/* Dark overlay so fish stay visible */
+#tank-bg img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
 #tank-bg::after {
   content: '';
   position: absolute; inset: 0;
@@ -46,145 +44,90 @@ html, body {
   );
 }
 
-/* ── PARTICLE NETWORK (subtle, over image) ── */
-#networkCanvas {
-  position: fixed; inset: 0; z-index: 1;
-  opacity: 0.4;
+#networkCanvas { position: fixed; inset: 0; z-index: 1; opacity: 0.4; }
+#tankCanvas    { position: fixed; inset: 0; z-index: 2; }
+
+#shark {
+  position: fixed;
+  z-index: 3;
+  width: 280px;           /* ← was 160px, now bigger */
+  pointer-events: none;
+  transform-origin: center center;
+  opacity: 0;
+  transition: opacity 1s;
 }
 
-/* ── FISH CANVAS ── */
-#tankCanvas {
-  position: fixed; inset: 0; z-index: 2;
+#shark-prompt {
+  position: fixed;
+  bottom: 80px; left: 50%; transform: translateX(-50%);
+  z-index: 20;
+  font-size: 9px; letter-spacing: 0.25em; text-transform: uppercase;
+  color: rgba(0,200,170,0.55);
+  pointer-events: none;
+  text-align: center;
+  line-height: 1.8;
 }
 
-/* ── UI OVERLAY ── */
 #ui {
   position: fixed; inset: 0; z-index: 10;
   pointer-events: none;
-  display: flex;
-  flex-direction: column;
+  display: flex; flex-direction: column;
   justify-content: space-between;
   padding: 36px 44px;
 }
-
-.ui-top {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-}
-
-.ui-wordmark {
-  font-size: 9px;
-  letter-spacing: 0.35em;
-  text-transform: uppercase;
-  color: var(--teal);
-  opacity: 0.7;
-}
-
-.ui-count {
-  text-align: right;
-}
-.ui-count-num {
-  font-family: 'Cormorant', serif;
-  font-weight: 300;
-  font-size: 42px;
-  line-height: 1;
-  color: var(--ink);
-  opacity: 0.6;
-}
-.ui-count-lbl {
-  font-size: 8px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-top: 4px;
-}
-
-.ui-bottom {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-}
-
-.ui-thesis {
-  font-family: 'Cormorant', serif;
-  font-style: italic;
-  font-weight: 300;
-  font-size: clamp(14px, 1.8vw, 18px);
-  color: rgba(180,200,230,0.35);
-  max-width: 380px;
-  line-height: 1.7;
-}
-
-.ui-pulse {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 8px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: rgba(0,200,170,0.35);
-}
-.pulse-dot {
-  width: 5px; height: 5px;
-  border-radius: 50%;
-  background: var(--teal);
-  opacity: 0.5;
-  animation: pulse 2.4s ease-in-out infinite;
-}
+.ui-top { display: flex; align-items: flex-start; justify-content: space-between; }
+.ui-wordmark { font-size: 9px; letter-spacing: 0.35em; text-transform: uppercase; color: var(--teal); opacity: 0.7; }
+.ui-count { text-align: right; }
+.ui-count-num { font-family: 'Cormorant', serif; font-weight: 300; font-size: 42px; line-height: 1; color: var(--ink); opacity: 0.6; }
+.ui-count-lbl { font-size: 8px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
+.ui-bottom { display: flex; align-items: flex-end; justify-content: space-between; }
+.ui-thesis { font-family: 'Cormorant', serif; font-style: italic; font-weight: 300; font-size: clamp(14px,1.8vw,18px); color: rgba(180,200,230,0.35); max-width: 380px; line-height: 1.7; }
+.ui-pulse { display: flex; align-items: center; gap: 8px; font-size: 8px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(0,200,170,0.35); }
+.pulse-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--teal); opacity: 0.5; animation: pulse 2.4s ease-in-out infinite; }
 @keyframes pulse {
-  0%, 100% { opacity: 0.2; transform: scale(1); }
-  50%       { opacity: 0.7; transform: scale(1.3); }
+  0%,100% { opacity: 0.2; transform: scale(1); }
+  50%     { opacity: 0.7; transform: scale(1.3); }
 }
 </style>
 </head>
 <body>
 
-<div id="tank-bg"></div>
+<div id="tank-bg">
+  <img src="assets/bg.gif" alt="">
+</div>
+
 <canvas id="networkCanvas"></canvas>
 <canvas id="tankCanvas"></canvas>
 
+<img id="shark" src="assets/shark.gif" alt="">
+
 <div id="ui">
-  <div class="ui-top">
-    <div class="ui-wordmark">Data Leak</div>
-    <div class="ui-count">
-      <div class="ui-count-num" id="fishCount">0</div>
-      <div class="ui-count-lbl">fish released</div>
-    </div>
-  </div>
+
   <div class="ui-bottom">
     <div class="ui-thesis">
       Your data tells a story.<br>Make sure it's one you chose to tell.
     </div>
-    <div class="ui-pulse">
-      <div class="pulse-dot"></div>
-      Live
-    </div>
+    <div class="ui-pulse"><div class="pulse-dot"></div>Live</div>
   </div>
 </div>
 
 <script>
-/* ══════════════════════════════════════════
+/* ═══════════════════════════════════════
    NETWORK BACKGROUND
-══════════════════════════════════════════ */
+═══════════════════════════════════════ */
 const netC = document.getElementById('networkCanvas');
 const netX = netC.getContext('2d');
 let NW, NH;
 const NP = [];
 
-function resizeNet() {
-  NW = netC.width  = window.innerWidth;
-  NH = netC.height = window.innerHeight;
-}
+function resizeNet() { NW = netC.width = window.innerWidth; NH = netC.height = window.innerHeight; }
 resizeNet();
 window.addEventListener('resize', resizeNet);
 
 for (let i = 0; i < 50; i++) NP.push({
   x: Math.random(), y: Math.random(),
   vx: (Math.random()-.5)*.00018, vy: (Math.random()-.5)*.00018,
-  r: Math.random()*1.1+.2,
-  a: Math.random()*.25+.05,
-  h: 165+Math.random()*30
+  r: Math.random()*1.1+.2, a: Math.random()*.25+.05, h: 165+Math.random()*30
 });
 
 function animNet() {
@@ -210,238 +153,447 @@ function animNet() {
 }
 animNet();
 
-/* ══════════════════════════════════════════
-   FISH ENGINE
-══════════════════════════════════════════ */
+/* ═══════════════════════════════════════
+   FIBRE FISH ENGINE
+═══════════════════════════════════════ */
 const tankC = document.getElementById('tankCanvas');
-const tankX = tankC.getContext('2d');
+const ctx   = tankC.getContext('2d');
 let TW, TH;
 
-function resizeTank() {
-  TW = tankC.width  = window.innerWidth;
-  TH = tankC.height = window.innerHeight;
-}
+function resizeTank() { TW = tankC.width = window.innerWidth; TH = tankC.height = window.innerHeight; }
 resizeTank();
 window.addEventListener('resize', resizeTank);
 
-// Each fish has position, velocity, DNA, and a local time offset
-const tankFish = [];
-let globalT = 0;
-
-function makeFish(dna) {
-  // Spawn from a random edge
-  const edge = Math.floor(Math.random()*4);
-  let x, y, vx, vy;
-  const spd = 0.4 + dna.e * 0.9;
-  if (edge===0) { x=Math.random()*TW; y=-40;   vx=(Math.random()-.5)*.4; vy=spd;  }
-  else if(edge===1){ x=TW+40; y=Math.random()*TH; vx=-spd; vy=(Math.random()-.5)*.4; }
-  else if(edge===2){ x=Math.random()*TW; y=TH+40; vx=(Math.random()-.5)*.4; vy=-spd; }
-  else            { x=-40; y=Math.random()*TH;   vx=spd;  vy=(Math.random()-.5)*.4; }
-
-  return {
-    x, y, vx, vy,
-    dna,
-    t: Math.random()*100, // unique time offset so each fish undulates differently
-    wander: Math.random()*Math.PI*2,
-    wanderSpd: (Math.random()-.5)*.012,
-    scale: 0, // fade in
+function mulberry32(seed) {
+  return function() {
+    seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+    let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
   };
 }
 
-function drawTankFish(fish) {
-  const { x, y, dna, t } = fish;
-  // Scale in on arrival
-  if (fish.scale < 1) fish.scale = Math.min(1, fish.scale + 0.008);
+function generateFishDNA(rng) {
+  /* ── COLOUR: exactly 2 hues, always high-contrast (150–185° apart) ── */
+  // Pick from a curated set of vivid base hues so colours feel distinct
+  const huePool = [0, 22, 45, 75, 130, 170, 200, 220, 265, 300, 330];
+  const idx1 = Math.floor(rng() * huePool.length);
+  const h1 = huePool[idx1];
+  // Second hue: complementary-ish — 150–185° away, always
+  const gap = 150 + rng() * 35;
+  const h2 = (h1 + (rng() > 0.5 ? gap : -gap) + 360) % 360;
+  // No h3 — two colours only
 
-  const W = 160 + dna.e * 80;
-  const H = 70  + dna.e * 30;
-  const sc = fish.scale;
+  /* ── SHAPE: more extreme proportions ── */
+  const shapeRoll = rng();
+  const shape = shapeRoll < 0.18 ? 'needle'
+               : shapeRoll < 0.36 ? 'slim'
+               : shapeRoll < 0.52 ? 'chubby'
+               : shapeRoll < 0.68 ? 'deep'
+               : shapeRoll < 0.84 ? 'round'
+               :                    'balloon';
 
-  tankX.save();
-  tankX.translate(x, y);
+  const shapeParams = {
+    needle:  { dorsalHeight:  28, bellyDepth:  24, bodyLength: 520, roundness: 0.60 },
+    slim:    { dorsalHeight:  55, bellyDepth:  48, bodyLength: 420, roundness: 0.85 },
+    chubby:  { dorsalHeight: 100, bellyDepth:  95, bodyLength: 340, roundness: 1.10 },
+    deep:    { dorsalHeight: 135, bellyDepth:  72, bodyLength: 360, roundness: 0.95 },
+    round:   { dorsalHeight: 115, bellyDepth: 110, bodyLength: 300, roundness: 1.25 },
+    balloon: { dorsalHeight: 150, bellyDepth: 145, bodyLength: 260, roundness: 1.55 },
+  }[shape];
 
-  // Flip to face direction of travel
-  const facingLeft = fish.vx < 0;
-  if (facingLeft) tankX.scale(-sc, sc);
-  else            tankX.scale(sc, sc);
+  /* Add per-fish jitter to body proportions */
+  shapeParams.dorsalHeight *= 0.80 + rng() * 0.40;
+  shapeParams.bellyDepth   *= 0.80 + rng() * 0.40;
+  shapeParams.bodyLength   *= 0.85 + rng() * 0.30;
 
-  const bL = W * dna.size * .78;
-  const bH = H * .28 * dna.size;
-  const spd = dna.speed;
-  const N = 60;
-  const pts = [];
-  const cx2 = 0, cy2 = 0;
+  /* ── TAIL ── */
+  const tailRoll = rng();
+  const tail = tailRoll < 0.25 ? 'forked'
+              : tailRoll < 0.50 ? 'fan'
+              : tailRoll < 0.75 ? 'wispy'
+              :                   'lunate';
 
-  for(let i=0;i<=N;i++){
-    const tt=i/N;
-    const wave=Math.sin(t*spd*1.9-tt*Math.PI*2.3)*H*.038*tt;
-    const belly=Math.sin(tt*Math.PI)*(1+Math.sin(tt*7+t*.4)*.09);
-    pts.push({ x:cx2-bL*.5+bL*tt, y:cy2+wave, w:bH*belly });
-  }
+  const tailParams = {
+    forked: { tailAngle: 0.55, tailLength:  88, tailSpread: 1.00 },
+    fan:    { tailAngle: 0.28, tailLength:  55, tailSpread: 2.00 },
+    wispy:  { tailAngle: 0.70, tailLength: 130, tailSpread: 0.70 },
+    lunate: { tailAngle: 0.42, tailLength: 100, tailSpread: 1.50 },
+  }[tail];
 
-  const h=dna.hue, s=dna.sat;
+  /* ── LINE DENSITY ── */
+  const lineRoll = rng();
+  const lineStyle = lineRoll < 0.33 ? 'sparse' : lineRoll < 0.66 ? 'medium' : 'dense';
+  const lineParams = {
+    sparse: { N: 8  + Math.floor(rng()*6),  centreWidth: 8  + rng()*6,   edgeWidth: 2.0 + rng()*2.5 },
+    medium: { N: 18 + Math.floor(rng()*12), centreWidth: 4  + rng()*4,   edgeWidth: 1.0 + rng()*1.8 },
+    dense:  { N: 40 + Math.floor(rng()*22), centreWidth: 2  + rng()*2.5, edgeWidth: 0.4 + rng()*0.8 },
+  }[lineStyle];
 
-  // Body
-  tankX.beginPath();
-  tankX.moveTo(pts[0].x, pts[0].y);
-  for(let i=1;i<pts.length;i++) tankX.lineTo(pts[i].x, pts[i].y-pts[i].w*.5);
-  for(let i=pts.length-1;i>=0;i--) tankX.lineTo(pts[i].x, pts[i].y+pts[i].w*.5);
-  tankX.closePath();
-  const bg = tankX.createLinearGradient(-bL*.5,0,bL*.5,0);
-  bg.addColorStop(0,   `hsla(${h},${s}%,36%,0)`);
-  bg.addColorStop(.2,  `hsla(${h},${s}%,40%,${dna.glow*.6})`);
-  bg.addColorStop(.52, `hsla(${h+8},${s+8}%,52%,${dna.glow})`);
-  bg.addColorStop(.82, `hsla(${h},${s}%,36%,${dna.glow*.5})`);
-  bg.addColorStop(1,   `hsla(${h},${s}%,28%,0)`);
-  tankX.fillStyle=bg; tankX.fill();
+  /* ── MOTION ── */
+  const flowRoll = rng();
+  const flow = flowRoll < 0.33 ? 'calm' : flowRoll < 0.66 ? 'wavy' : 'wild';
+  const flowParams = {
+    calm: { driftAmp:  1 + rng()*2,   driftSpeed: 0.20 + rng()*0.20 },
+    wavy: { driftAmp:  4 + rng()*6,   driftSpeed: 0.40 + rng()*0.35 },
+    wild: { driftAmp: 12 + rng()*10,  driftSpeed: 0.80 + rng()*0.60 },
+  }[flow];
 
-  // Scales
-  for(let i=0;i<dna.scales;i++){
-    const tt=.12+(i/dna.scales)*.74;
-    const sp=pts[Math.floor(tt*N)];
-    if(!sp) continue;
-    tankX.beginPath();
-    tankX.moveTo(sp.x,sp.y-sp.w*.5);
-    tankX.lineTo(sp.x+sp.w*.22,sp.y);
-    tankX.lineTo(sp.x,sp.y+sp.w*.5);
-    tankX.strokeStyle=`hsla(${h+18},85%,78%,.1)`;
-    tankX.lineWidth=.5; tankX.stroke();
-  }
+  /* ── DORSAL FIN ── */
+  const hasDorsal  = rng() > 0.35;            // slightly more common
+  const dorsalPos  = 0.38 + rng() * 0.30;
+  const dorsalSize = 15   + rng() * 55;
 
-  // Dorsal
-  const dp=pts[Math.floor(N*.44)];
-  if(dp){
-    tankX.beginPath();
-    tankX.moveTo(dp.x-bL*.11,dp.y-dp.w*.45);
-    tankX.quadraticCurveTo(dp.x,dp.y-bH*(.56+Math.sin(t*1.2)*.05),dp.x+bL*.11,dp.y-dp.w*.45);
-    tankX.strokeStyle=`hsla(${h},${s}%,60%,.28)`; tankX.lineWidth=.7; tankX.stroke();
-  }
+  /* ── COLOUR INTENSITY: high saturation always, vivid split-tone look ── */
+  const sat          = 75  + rng() * 25;   // 75–100% — always punchy
+  const brightCentre = 68  + rng() * 20;   // core brightness
+  const brightEdge   = 25  + rng() * 20;   // dark edges for contrast
+  // Where along the body the two colours split (0.3–0.65)
+  const colourSplit  = 0.30 + rng() * 0.35;
 
-  // Tail
-  const tl=pts[0];
-  const fl=Math.sin(t*spd*2.05)*H*.09;
-  tankX.beginPath();
-  tankX.moveTo(tl.x,tl.y);
-  tankX.quadraticCurveTo(tl.x-bL*.1,tl.y+fl*1.3,tl.x-bL*.14,tl.y+fl);
-  tankX.moveTo(tl.x,tl.y);
-  tankX.quadraticCurveTo(tl.x-bL*.1,tl.y-fl*1.3,tl.x-bL*.14,tl.y-fl);
-  tankX.strokeStyle=`hsla(${h},${s}%,58%,.38)`; tankX.lineWidth=.9; tankX.stroke();
-
-  // Eye
-  const ep=pts[Math.floor(N*.88)];
-  if(ep){
-    const ex=ep.x+bL*.005, ey=ep.y-ep.w*.18;
-    tankX.beginPath(); tankX.arc(ex,ey,2,0,Math.PI*2);
-    tankX.fillStyle=`hsla(${h+25},100%,82%,.88)`; tankX.fill();
-  }
-
-  // Data particles
-  for(let p=0;p<dna.pts;p++){
-    const prog=((t*.3+p*.44)%1);
-    const src=pts[Math.floor(N*(.22+p*.055))];
-    if(!src) continue;
-    const px=src.x+(Math.sin(p*2.1)*bL*.28)*prog;
-    const py=src.y-src.w*.5-prog*H*.18+Math.cos(p*1.9)*H*.07;
-    tankX.beginPath(); tankX.arc(px,py,.8,0,Math.PI*2);
-    tankX.fillStyle=`rgba(0,200,170,${(1-prog)*.32})`; tankX.fill();
-  }
-
-  tankX.restore();
-}
-
-function updateFish(fish) {
-  fish.t += .015;
-
-  // Wander — gentle direction drift
-  fish.wander += fish.wanderSpd;
-  fish.vx += Math.cos(fish.wander) * .004;
-  fish.vy += Math.sin(fish.wander) * .003;
-
-  // Speed clamp
-  const spd = 0.4 + fish.dna.e * 0.9;
-  const curr = Math.sqrt(fish.vx*fish.vx+fish.vy*fish.vy);
-  if(curr > spd*1.4){ fish.vx*=spd*1.4/curr; fish.vy*=spd*1.4/curr; }
-  if(curr < spd*.5) { fish.vx*=spd*.5/curr;  fish.vy*=spd*.5/curr;  }
-
-  // Soft boundary repulsion — fish drift back toward center when near edge
-  const margin = 120;
-  if(fish.x < margin)   fish.vx += .03;
-  if(fish.x > TW-margin) fish.vx -= .03;
-  if(fish.y < margin)   fish.vy += .02;
-  if(fish.y > TH-margin) fish.vy -= .02;
-
-  fish.x += fish.vx;
-  fish.y += fish.vy;
-}
-
-/* ══════════════════════════════════════════
-   DEMO FISH — auto-populate with variety
-══════════════════════════════════════════ */
-const DEMO_PROFILES = [
-  { e:0.05 }, { e:0.2  }, { e:0.35 }, { e:0.5  },
-  { e:0.65 }, { e:0.78 }, { e:0.88 }, { e:1.0  },
-];
-
-function buildDNA(e) {
   return {
-    e,
-    hue:    175 - e*45,
-    sat:    50  + e*38,
-    size:   0.52 + e*0.36,
-    speed:  0.75 + e*1.5,
-    pts:    Math.floor(e*20),
-    glow:   0.35 + e*0.55,
-    scales: Math.floor(5 + e*13),
+    ...shapeParams, ...tailParams, ...lineParams, ...flowParams,
+    shimmerSpeed: 0.8 + rng() * 3.0,
+    h1, h2,
+    sat, brightCentre, brightEdge, colourSplit,
+    hasDorsal, dorsalPos, dorsalSize,
   };
 }
 
-// Stagger fish appearing over first 8 seconds
-DEMO_PROFILES.forEach((p, i) => {
-  setTimeout(() => {
-    tankFish.push(makeFish(buildDNA(p.e)));
-    updateCount();
-  }, i * 1000 + 500);
+// Two-colour interpolation with a sharp crossover at `split`
+function duoHue(t, h1, h2, split) {
+  // Smooth but fairly fast transition in a narrow band around the split
+  const band = 0.12;
+  const blend = Math.max(0, Math.min(1, (t - (split - band)) / (band * 2)));
+  // Shortest-path interpolation
+  let d = ((h2 - h1) + 360) % 360;
+  if (d > 180) d -= 360;
+  return (h1 + d * blend + 360) % 360;
+}
+
+function bodySlice(u, dna) {
+  const r = dna.roundness;
+  const dorsalEnv = Math.pow(Math.sin(Math.pow(Math.max(0,Math.min(1,u*1.05)),0.5)*Math.PI), 0.6/r);
+  const bellyEnv  = Math.pow(Math.sin(Math.pow(Math.max(0,Math.min(1,u*0.98)),0.45)*Math.PI), 0.55/r);
+  let bump = 0;
+  if (dna.hasDorsal) {
+    const d = u - dna.dorsalPos;
+    bump = dna.dorsalSize * Math.exp(-d*d*120) * Math.min(1,u*8) * Math.min(1,(1-u)*8);
+  }
+  return { topY: -dorsalEnv*dna.dorsalHeight - bump, botY: bellyEnv*dna.bellyDepth };
+}
+
+function drawFibreFish(dna, t) {
+  const N = dna.N;
+  const halfLen   = dna.bodyLength / 2;
+  const noseX     =  halfLen;
+  const tailRootX = -halfLen;
+
+  for (let i = 0; i < N; i++) {
+    const f       = i / (N-1);
+    const centreF = 1 - Math.abs(f-0.5)*2;
+    const side    = f < 0.5 ? 1 : -1;
+    const frac    = f < 0.5 ? (0.5-f)*2 : (f-0.5)*2;
+
+    const ta   = side > 0 ? -dna.tailAngle : dna.tailAngle;
+    const tlen = dna.tailLength * dna.tailSpread * frac;
+    const pts  = [
+      { x: tailRootX - Math.cos(ta)*tlen, y: side*frac*10 + side*Math.sin(Math.abs(ta))*tlen },
+      { x: tailRootX-4, y: side*frac*11 },
+    ];
+
+    for (let s=1; s<=20; s++) {
+      const u = s/20;
+      const x = tailRootX + u*dna.bodyLength;
+      const { topY, botY } = bodySlice(u, dna);
+      const pinnedF = 0.5 + (f-0.5)*(1-Math.pow(u,3.5))*(1-Math.pow(1-u,2)*0.45);
+      const y = topY + (botY-topY)*pinnedF;
+      const drift = Math.sin(t*dna.driftSpeed + f*Math.PI*5 + u*4)*dna.driftAmp*Math.sin(u*Math.PI)*frac;
+      pts.push({ x, y: y+drift });
+    }
+    pts.push({ x: noseX, y: 0 });
+
+    const shimmer = 0.5 + 0.5*Math.sin(t*dna.shimmerSpeed + f*Math.PI*7);
+    const alpha   = Math.min(0.20 + centreF*0.55 + shimmer*0.08, 0.98);
+    const lw      = dna.edgeWidth + centreF*(dna.centreWidth-dna.edgeWidth);
+
+    const buildPath = () => {
+      ctx.beginPath();
+      ctx.moveTo(pts[0].x, pts[0].y);
+      for (let k=1; k<pts.length-1; k++) {
+        ctx.quadraticCurveTo(pts[k].x, pts[k].y, (pts[k].x+pts[k+1].x)/2, (pts[k].y+pts[k+1].y)/2);
+      }
+      ctx.lineTo(pts[pts.length-1].x, pts[pts.length-1].y);
+    };
+
+    const grd = ctx.createLinearGradient(pts[0].x, pts[0].y, noseX, 0);
+    for (let g=0; g<=8; g++) {
+      const gt = g/8;
+      // Clean two-colour split — no per-fibre hue twist, colours stay crisp
+      const h  = duoHue(gt, dna.h1, dna.h2, dna.colourSplit);
+      const l  = dna.brightEdge + centreF*(dna.brightCentre-dna.brightEdge);
+      const tf = gt>0.88 ? (1-(gt-0.88)/0.12) : 1;
+      grd.addColorStop(gt, `hsla(${h},${dna.sat}%,${l}%,${alpha*tf})`);
+    }
+
+    buildPath();
+    ctx.strokeStyle = grd;
+    ctx.lineWidth   = lw;
+    ctx.lineCap     = 'round';
+    ctx.stroke();
+  }
+}
+
+/* ═══════════════════════════════════════
+   FLOCKING
+═══════════════════════════════════════ */
+const tankFish  = [];
+const flocks    = [];
+let   flockIdCounter = 0;
+
+const FLOCK_MAX  = 15;
+const W_SEP      = 0.18;
+const W_ALI      = 0.10;
+const W_COH      = 0.06;
+const W_FLOCK    = 0.04;
+const W_WANDER   = 0.003;
+const SPEED_TGT  = 0.55;
+const SEP_RADIUS = 55;
+const FLOCK_R    = 260;
+
+function createFlock() {
+  const flock = { id: flockIdCounter++, members: [], wander: Math.random()*Math.PI*2, wSpd: (Math.random()-0.5)*0.008 };
+  flocks.push(flock);
+  return flock;
+}
+
+function spawnFish(dnaOverride, flockRef, px, py) {
+  const rng   = mulberry32(Math.floor(Math.random()*999999));
+  const dna   = dnaOverride || generateFishDNA(rng);
+
+  /* ── SIZE: much wider range — from tiny (0.05) to large (0.22) ── */
+  const minScale = 0.04 + Math.random() * 0.04;   // 0.04 – 0.08  (tiny)
+  const maxScale = 0.12 + Math.random() * 0.10;   // 0.12 – 0.22  (large)
+  // pick randomly from that per-fish range
+  const scale = minScale + Math.random() * (maxScale - minScale);
+
+  const x = px != null ? px : TW*0.12 + Math.random()*TW*0.76;
+  const y = py != null ? py : TH*0.12 + Math.random()*TH*0.76;
+  const a = Math.random()*Math.PI*2;
+  const fish = {
+    x, y,
+    vx: Math.cos(a)*SPEED_TGT*(0.85+Math.random()*0.3),
+    vy: Math.sin(a)*SPEED_TGT*(0.85+Math.random()*0.3),
+    dna, scale, t: Math.random()*100,
+    wander: Math.random()*Math.PI*2, wSpd: (Math.random()-0.5)*0.013,
+    opacity: 0, flockId: flockRef ? flockRef.id : -1,
+    glowTimer: 10,
+  };
+  if (flockRef) flockRef.members.push(fish);
+  tankFish.push(fish);
+  return fish;
+}
+
+function assignFlock(fish, nx, ny) {
+  let best = null, bestDist = Infinity;
+  for (const fl of flocks) {
+    if (fl.members.length >= FLOCK_MAX) continue;
+    const cx = fl.members.reduce((s,f)=>s+f.x,0)/fl.members.length;
+    const cy = fl.members.reduce((s,f)=>s+f.y,0)/fl.members.length;
+    const d  = Math.hypot(cx-nx, cy-ny);
+    if (d < bestDist) { bestDist = d; best = fl; }
+  }
+  if (!best || bestDist > 400) best = createFlock();
+  fish.flockId = best.id;
+  best.members.push(fish);
+}
+
+function updateFish(f) {
+  f.t += 0.015;
+  if (f.opacity < 1) f.opacity = Math.min(1, f.opacity + 0.006);
+  const myFlock = flocks.find(fl => fl.id === f.flockId);
+  let sepX=0,sepY=0,aliX=0,aliY=0,cohX=0,cohY=0,aliN=0;
+  for (const o of (myFlock ? myFlock.members : [])) {
+    if (o===f) continue;
+    const dx=f.x-o.x, dy=f.y-o.y, d=Math.hypot(dx,dy)||0.001;
+    if (d<SEP_RADIUS) { sepX+=dx/d*(SEP_RADIUS-d)/SEP_RADIUS; sepY+=dy/d*(SEP_RADIUS-d)/SEP_RADIUS; }
+    if (d<FLOCK_R)    { aliX+=o.vx; aliY+=o.vy; cohX+=o.x; cohY+=o.y; aliN++; }
+  }
+  if (aliN>0) {
+    aliX/=aliN; aliY/=aliN;
+    const cd=Math.hypot(cohX/aliN-f.x, cohY/aliN-f.y)||1;
+    cohX=(cohX/aliN-f.x)/cd; cohY=(cohY/aliN-f.y)/cd;
+  }
+  const wx=myFlock?Math.cos(myFlock.wander):Math.cos(f.wander);
+  const wy=myFlock?Math.sin(myFlock.wander):Math.sin(f.wander);
+  f.wander+=f.wSpd;
+  f.vx += sepX*W_SEP + aliX*W_ALI + cohX*W_COH + wx*W_FLOCK + Math.cos(f.wander)*W_WANDER;
+  f.vy += sepY*W_SEP + aliY*W_ALI + cohY*W_COH + wy*W_FLOCK + Math.sin(f.wander)*W_WANDER;
+  const spd=Math.hypot(f.vx,f.vy);
+  if (spd>SPEED_TGT*1.6){f.vx*=SPEED_TGT*1.6/spd;f.vy*=SPEED_TGT*1.6/spd;}
+  if (spd<SPEED_TGT*0.3){f.vx*=SPEED_TGT*0.3/spd;f.vy*=SPEED_TGT*0.3/spd;}
+  const m = 60;
+  const push = 0.12;
+  if(f.x < m)      f.vx += push * (1 - f.x/m);
+  if(f.x > TW - m) f.vx -= push * (1 - (TW-f.x)/m);
+  if(f.y < m)      f.vy += push * (1 - f.y/m);
+  if(f.y > TH - m) f.vy -= push * (1 - (TH-f.y)/m);
+  f.x += f.vx; f.y += f.vy;
+  f.x = Math.max(10, Math.min(TW - 10, f.x));
+  f.y = Math.max(10, Math.min(TH - 10, f.y));
+  if(f.x <= 10 || f.x >= TW-10) f.vx *= -0.6;
+  if(f.y <= 10 || f.y >= TH-10) f.vy *= -0.6;
+}
+
+(function(){
+  const fl1=createFlock(), fl2=createFlock();
+  for(let i=0;i<12;i++){
+    const fl=i<6?fl1:fl2, cx=fl===fl1?TW*0.3:TW*0.7, cy=TH*0.5;
+    setTimeout(()=>{
+      spawnFish(null,fl, cx+(Math.random()-0.5)*180, cy+(Math.random()-0.5)*120);
+    },i*200+100);
+  }
+})();
+
+function addFishToTank(seed,px,py){
+  const rng=mulberry32(seed!=null?seed:Math.floor(Math.random()*999999));
+  const dna=generateFishDNA(rng);
+  const x=px!=null?px:TW*0.12+Math.random()*TW*0.76;
+  const y=py!=null?py:TH*0.12+Math.random()*TH*0.76;
+  const f=spawnFish(dna,null,x,y);
+  assignFlock(f,x,y);
+  document.getElementById('fishCount').textContent=tankFish.length;
+}
+
+tankC.addEventListener('click',(e)=>addFishToTank(null,e.clientX,e.clientY));
+window.addEventListener('storage',(e)=>{
+  if(e.key==='datafish-release'){try{const{seed}=JSON.parse(e.newValue);addFishToTank(seed);}catch(_){}}
 });
 
-function updateCount() {
-  document.getElementById('fishCount').textContent = tankFish.length;
+/* ═══════════════════════════════════════
+   SHARK
+═══════════════════════════════════════ */
+const sharkEl = document.getElementById('shark');
+const sharkPrompt = document.getElementById('shark-prompt');
+
+const shark = {
+  x: TW / 2, y: TH / 2,
+  vx: 0.6, vy: 0.3,
+  speed: 0.9,
+  w: 280, h: 158,     // updated to match new CSS width
+  active: false,
+};
+
+sharkEl.addEventListener('load', () => {
+  shark.active = true;
+  sharkEl.style.opacity = '1';
+  sharkPrompt.style.display = 'none';
+});
+sharkEl.addEventListener('error', () => {});
+
+const SHARK_FLEE_RADIUS = 220;  // slightly larger flee zone to match bigger shark
+const W_FLEE = 0.35;
+
+function updateShark() {
+  if (!shark.active) return;
+
+  let targetX = TW / 2, targetY = TH / 2, bestSize = 0;
+  for (const fl of flocks) {
+    if (fl.members.length === 0) continue;
+    if (fl.members.length > bestSize) {
+      bestSize = fl.members.length;
+      targetX = fl.members.reduce((s, f) => s + f.x, 0) / fl.members.length;
+      targetY = fl.members.reduce((s, f) => s + f.y, 0) / fl.members.length;
+    }
+  }
+
+  const dx = targetX - shark.x;
+  const dy = targetY - shark.y;
+  const d  = Math.hypot(dx, dy) || 1;
+  shark.vx += (dx / d) * 0.08;
+  shark.vy += (dy / d) * 0.08;
+
+  const spd = Math.hypot(shark.vx, shark.vy);
+  if (spd > shark.speed) { shark.vx = shark.vx/spd*shark.speed; shark.vy = shark.vy/spd*shark.speed; }
+  if (spd < shark.speed * 0.5) { shark.vx = shark.vx/spd*shark.speed*0.5; shark.vy = shark.vy/spd*shark.speed*0.5; }
+
+  const m = 80;
+  if (shark.x < m)      shark.vx += 0.15;
+  if (shark.x > TW - m) shark.vx -= 0.15;
+  if (shark.y < m)      shark.vy += 0.12;
+  if (shark.y > TH - m) shark.vy -= 0.12;
+
+  shark.x += shark.vx;
+  shark.y += shark.vy;
+  shark.x = Math.max(30, Math.min(TW - 30, shark.x));
+  shark.y = Math.max(30, Math.min(TH - 30, shark.y));
+
+  const angle  = Math.atan2(shark.vy, shark.vx);
+  const flipY  = shark.vx < 0 ? -1 : 1;
+  sharkEl.style.left      = (shark.x - shark.w / 2) + 'px';
+  sharkEl.style.top       = (shark.y - shark.h / 2) + 'px';
+  sharkEl.style.transform = `rotate(${angle}rad) scaleY(${flipY})`;
 }
 
-/* ══════════════════════════════════════════
-   MAIN LOOP
-══════════════════════════════════════════ */
-function loop() {
-  tankX.clearRect(0,0,TW,TH);
-  globalT += .012;
+const _origUpdateFish = updateFish;
+function updateFishWithFlee(f) {
+  _origUpdateFish(f);
+  if (!shark.active) return;
+  const dx = f.x - shark.x;
+  const dy = f.y - shark.y;
+  const d  = Math.hypot(dx, dy) || 1;
+  if (d < SHARK_FLEE_RADIUS) {
+    const strength = W_FLEE * (1 - d / SHARK_FLEE_RADIUS);
+    f.vx += (dx / d) * strength;
+    f.vy += (dy / d) * strength;
+  }
+}
 
-  tankFish.forEach(fish => {
-    updateFish(fish);
-    drawTankFish(fish);
-  });
+function loop(){
+  ctx.clearRect(0,0,TW,TH);
+  for(const fl of flocks){ fl.wander+=fl.wSpd; fl.members=fl.members.filter(f=>tankFish.includes(f)); }
 
+  updateShark();
+
+  for(const f of tankFish){
+    updateFishWithFlee(f);
+    if(f.glowTimer > 0) f.glowTimer -= 1/60;
+
+    ctx.save();
+    ctx.globalAlpha = f.opacity;
+    ctx.translate(f.x, f.y);
+    ctx.rotate(Math.atan2(f.vy, f.vx));
+    ctx.scale(f.scale, f.scale);
+    drawFibreFish(f.dna, f.t);
+    ctx.restore();
+
+    if(f.glowTimer > 0) {
+      const progress  = f.glowTimer / 10;
+      const throb     = 0.5 + 0.5 * Math.sin(f.t * 8);
+      const intensity = progress * throb;
+      const angle     = Math.atan2(f.vy, f.vx);
+      const r = f.scale * f.dna.bodyLength * 0.18;
+
+      ctx.save();
+      ctx.globalAlpha = 1;
+      ctx.shadowColor = 'rgba(255,255,255,1)';
+      ctx.shadowBlur  = 55 * intensity;
+      ctx.beginPath();
+      ctx.ellipse(f.x, f.y, r * 1.3, r * 0.6, angle, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,255,255,${0.75 * intensity})`;
+      ctx.fill();
+      ctx.shadowBlur = 25 * intensity;
+      ctx.beginPath();
+      ctx.ellipse(f.x, f.y, r * 0.7, r * 0.32, angle, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,255,255,${0.95 * intensity})`;
+      ctx.fill();
+      ctx.restore();
+    }
+  }
   requestAnimationFrame(loop);
 }
 loop();
 
-/* ══════════════════════════════════════════
-   ADD FISH FROM SURVEY
-   Call addFishToTank(dna) from the survey
-   page, or wire up via localStorage/websocket
-══════════════════════════════════════════ */
-function addFishToTank(dna) {
-  tankFish.push(makeFish(dna));
-  updateCount();
-}
-
-// Listen for fish released from the survey page (same browser, different tab)
-window.addEventListener('storage', (e) => {
-  if (e.key === 'datafish-release') {
-    try {
-      const dna = JSON.parse(e.newValue);
-      addFishToTank(dna);
-    } catch(_) {}
-  }
-});
 </script>
 </body>
 </html>

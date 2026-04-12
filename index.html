@@ -2,8 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Data Leak</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -12,24 +17,24 @@
 
 <!-- ── WELCOME ── -->
 <div class="screen active" id="s-welcome">
-  <div class="w-logo">Data Leak</div>
-  <div class="w-title">Your data<br>has a <em>shape.</em></div>
-  <div class="w-divider"></div>
-  <div class="w-body">
-    You share. You connect. You live online.<br>
-    <strong>That's not the problem.</strong><br>
+  <div class="w-topbar">
+    <div class="w-brand">Data Leak</div>
   </div>
-  <button class="btn" id="btnStart">
-    <span class="btn-label">Create my fish</span>
-  </button>
 
-  <!-- View Tank -->
-  <a href="tank.html">
-    <button class="btn" id="btnTank">
-      <span class="btn-label">View Tank</span>
-    </button>
-  </a>
+  <!-- Left: fish -->
+  <div class="w-fish-preview">
+    <canvas id="welcomeCanvas"></canvas>
+  </div>
 
+  <!-- Right: copy + buttons -->
+  <div class="w-copy">
+    <div class="w-title">You leave behind more than you think.</div>
+    <div class="w-sub">See how your digital activity takes shape.</div>
+    <div class="w-buttons">
+      <button class="btn-primary" id="btnStart">Begin</button>
+      <a href="tank.html" class="btn-secondary">View Tank</a>
+    </div>
+  </div>
 </div>
 
 <!-- ── QUESTION ── -->
@@ -69,19 +74,28 @@
 
 <!-- ── REVEAL ── -->
 <div class="screen" id="s-reveal">
-  <div class="rv-eyebrow">Meet your data fish</div>
-  <div class="rv-title" id="rvTitle"></div>
-  <div class="rv-subtitle">Shaped by your answers. Uniquely yours.</div>
-  <div class="rv-fish-wrap">
-    <canvas id="revealCanvas"></canvas>
+
+  <!-- Left column: eyebrow + fish canvas -->
+  <div class="rv-fish-col">
+    <div class="rv-eyebrow">Meet your data fish</div>
+    <div class="rv-fish-wrap">
+      <canvas id="revealCanvas"></canvas>
+    </div>
   </div>
-  <div class="rv-traits" id="rvTraits"></div>
-  <div class="rv-msg" id="rvMsg"></div>
-  <div class="rv-release-wrap">
-    <button class="btn-release" id="btnRelease">
-      <span>Release into the tank &nbsp;↗</span>
-    </button>
+
+  <!-- Right column: title, traits, message, CTA -->
+  <div class="rv-info-col">
+    <div class="rv-title" id="rvTitle"></div>
+    <div class="rv-subtitle">Shaped by your answers. Uniquely yours.</div>
+    <div class="rv-traits" id="rvTraits"></div>
+    <div class="rv-msg" id="rvMsg"></div>
+    <div class="rv-release-wrap">
+      <button class="btn-release" id="btnRelease">
+        <span>Release into the tank &nbsp;↗</span>
+      </button>
+    </div>
   </div>
+
 </div>
 
 <!-- ── RELEASED ── -->
@@ -95,11 +109,6 @@
   <button class="rel-again" id="btnAgain">Start again ↺</button>
 </div>
 
-<!--
-  Firebase must use type="module".
-  We initialise it here and expose window.__db,
-  then dynamically append script.js so it loads after __db is ready.
--->
 <script type="module">
   import { initializeApp }  from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
   import { getFirestore }   from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
@@ -114,12 +123,11 @@
     measurementId:     "G-EVYM1TQSBY"
   };
 
-  const app    = initializeApp(firebaseConfig);
-  window.__db  = getFirestore(app);   // script.js reads this as window.__db
+  const app   = initializeApp(firebaseConfig);
+  window.__db = getFirestore(app);
 
-  // Dynamically load script.js only after __db exists
-  const s  = document.createElement('script');
-  s.src    = 'script.js';
+  const s = document.createElement('script');
+  s.src   = 'script.js';
   document.body.appendChild(s);
 </script>
 

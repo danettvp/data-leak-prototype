@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Data Leak — The Tank</title>
+<title>Data Leak Ocean</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;1,300&family=Inconsolata:wght@300;400&display=swap');
 
@@ -24,6 +24,18 @@ html, body {
   color: var(--ink);
 }
 
+/* ✅ LOGO */
+#logo {
+  position: fixed;
+  top: 28px;
+  left: 32px;
+  z-index: 20;
+  width: 110px;
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+/* background */
 #tank-bg {
   position: fixed; inset: 0; z-index: 0;
 }
@@ -31,7 +43,6 @@ html, body {
   position: absolute; inset: 0;
   width: 100%; height: 100%;
   object-fit: cover;
-  object-position: center;
 }
 #tank-bg::after {
   content: '';
@@ -50,47 +61,71 @@ html, body {
 #shark {
   position: fixed;
   z-index: 3;
-  width: 280px;           /* ← was 160px, now bigger */
+  width: 280px;
   pointer-events: none;
   transform-origin: center center;
   opacity: 0;
   transition: opacity 1s;
 }
 
-#shark-prompt {
-  position: fixed;
-  bottom: 80px; left: 50%; transform: translateX(-50%);
-  z-index: 20;
-  font-size: 9px; letter-spacing: 0.25em; text-transform: uppercase;
-  color: rgba(0,200,170,0.55);
-  pointer-events: none;
-  text-align: center;
-  line-height: 1.8;
-}
-
 #ui {
   position: fixed; inset: 0; z-index: 10;
   pointer-events: none;
   display: flex; flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-end;
   padding: 36px 44px;
 }
-.ui-top { display: flex; align-items: flex-start; justify-content: space-between; }
-.ui-wordmark { font-size: 9px; letter-spacing: 0.35em; text-transform: uppercase; color: var(--teal); opacity: 0.7; }
-.ui-count { text-align: right; }
-.ui-count-num { font-family: 'Cormorant', serif; font-weight: 300; font-size: 42px; line-height: 1; color: var(--ink); opacity: 0.6; }
-.ui-count-lbl { font-size: 8px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
-.ui-bottom { display: flex; align-items: flex-end; justify-content: space-between; }
-.ui-thesis { font-family: 'Cormorant', serif; font-style: italic; font-weight: 300; font-size: clamp(14px,1.8vw,18px); color: rgba(180,200,230,0.35); max-width: 380px; line-height: 1.7; }
-.ui-pulse { display: flex; align-items: center; gap: 8px; font-size: 8px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(0,200,170,0.35); }
-.pulse-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--teal); opacity: 0.5; animation: pulse 2.4s ease-in-out infinite; }
+
+.ui-bottom { 
+  display: flex; 
+  align-items: flex-end; 
+  justify-content: flex-end; 
+}
+
+.ui-thesis { 
+  position: fixed;
+  bottom: 36px;
+  left: 44px;
+
+  font-family: 'Cormorant', serif; 
+  font-style: italic; 
+  font-weight: 300; 
+  font-size: clamp(14px,1.8vw,18px); 
+  color: rgba(180,200,230,0.35); 
+  max-width: 320px; 
+  line-height: 1.7; 
+}
+
+.ui-pulse { 
+  display: flex; 
+  align-items: center; 
+  gap: 8px; 
+  font-size: 8px; 
+  letter-spacing: 0.18em; 
+  text-transform: uppercase; 
+  color: rgba(0,200,170,0.35); 
+}
+
+.pulse-dot { 
+  width: 5px; 
+  height: 5px; 
+  border-radius: 50%; 
+  background: var(--teal); 
+  opacity: 0.5; 
+  animation: pulse 2.4s ease-in-out infinite; 
+}
+
 @keyframes pulse {
   0%,100% { opacity: 0.2; transform: scale(1); }
   50%     { opacity: 0.7; transform: scale(1.3); }
 }
 </style>
 </head>
+
 <body>
+
+<!-- ✅ LOGO -->
+<img id="logo" src="assets/logo.png" alt="logo">
 
 <div id="tank-bg">
   <img src="assets/bg.gif" alt="">
@@ -102,7 +137,6 @@ html, body {
 <img id="shark" src="assets/shark.gif" alt="">
 
 <div id="ui">
-
   <div class="ui-bottom">
     <div class="ui-thesis">
       Your data tells a story.<br>Make sure it's one you chose to tell.
@@ -446,12 +480,31 @@ function updateFish(f) {
 }
 
 (function(){
-  const fl1=createFlock(), fl2=createFlock();
-  for(let i=0;i<12;i++){
-    const fl=i<6?fl1:fl2, cx=fl===fl1?TW*0.3:TW*0.7, cy=TH*0.5;
-    setTimeout(()=>{
-      spawnFish(null,fl, cx+(Math.random()-0.5)*180, cy+(Math.random()-0.5)*120);
-    },i*200+100);
+  const TOTAL_FISH = 100;
+  const flockCount = Math.ceil(TOTAL_FISH / FLOCK_MAX);
+
+  // create multiple flocks
+  const initialFlocks = [];
+  for (let i = 0; i < flockCount; i++) {
+    initialFlocks.push(createFlock());
+  }
+
+  for (let i = 0; i < TOTAL_FISH; i++) {
+    const fl = initialFlocks[i % flockCount];
+
+    // spread flocks across screen
+    const zoneX = (i % flockCount) / flockCount;
+    const cx = TW * (0.2 + zoneX * 0.6);
+    const cy = TH * (0.3 + Math.random() * 0.4);
+
+    setTimeout(() => {
+      spawnFish(
+        null,
+        fl,
+        cx + (Math.random() - 0.5) * 220,
+        cy + (Math.random() - 0.5) * 160
+      );
+    }, i * 20); // small stagger so it fades in nicely
   }
 })();
 

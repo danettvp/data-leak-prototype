@@ -12,6 +12,7 @@ const QS = [
       { t: "Posting it quickly",              v: 1, tag: "Impulsive"  },
       { t: "I don't think too much about it", v: 2, tag: "Relaxed"    },
     ],
+    fact: "The average person generates 1.7MB of data every second — most of it without realising."
   },
   {
     text: "When an app asks for permissions, what do you do?",
@@ -23,6 +24,7 @@ const QS = [
       { t: "Read everything carefully",     v: 1, tag: "Cautious"   },
       { t: "Try to avoid it altogether",    v: 1, tag: "Resistant"  },
     ],
+    fact: "Location data can reveal your home, workplace, religion, and relationships — even without a name attached."
   },
   {
     text: "When an online recommendation feels a little too accurate, how do you respond?",
@@ -34,6 +36,7 @@ const QS = [
       { t: "Feel genuinely uncomfortable",       v: 4, tag: "Uneasy"     },
       { t: "Don't mind — it's convenient",       v: 1, tag: "Accepting"  },
     ],
+    fact: "Ad platforms can infer your mental health, financial stress, and relationships from browsing patterns alone."
   },
   {
     text: "When you stop using a platform, what do you think happens to your data?",
@@ -44,6 +47,7 @@ const QS = [
       { t: "It depends on the platform",      v: 2, tag: "Pragmatic" },
       { t: "I don't really think about that", v: 4, tag: "Unaware"   },
     ],
+    fact: "In 2023 alone, over 4 billion records were exposed in data breaches. Most users were never directly notified."
   },
   {
     text: "How much do you trust online platforms with your personal data?",
@@ -54,6 +58,7 @@ const QS = [
       { t: "I'm careful about what I share", v: 2, tag: "Guarded"   },
       { t: "I don't trust them at all",      v: 1, tag: "Skeptical" },
     ],
+    fact: "Most platform privacy policies are longer than Shakespeare's Hamlet — and designed not to be read."
   }
 ];
 
@@ -344,13 +349,34 @@ function renderFishToCanvas(canvas, ctx, dna, t, scale) {
 ══════════════════════════════════════════ */
 const miniC = document.getElementById('miniCanvas');
 const miniX = miniC.getContext('2d');
-miniC.width  = 144;
-miniC.height = 68;
+
+// Match internal resolution to CSS display size × devicePixelRatio
+// so renderFishToCanvas calculates the logical centre correctly
+function setupMiniCanvas() {
+  const dpr = window.devicePixelRatio || 1;
+  miniC.width  = 80 * dpr;
+  miniC.height = 38 * dpr;
+  miniX.setTransform(1,0,0,1,0,0);
+  miniX.scale(dpr, dpr);
+}
+setupMiniCanvas();
+window.addEventListener('resize', setupMiniCanvas);
 
 let miniT = 0;
 function animMini() {
   miniT += 0.016;
-  renderFishToCanvas(miniC, miniX, getDNA(), miniT, 0.26);
+  // getDNA() returns a fish sized for the full reveal — scale it way down
+  // and clamp so it never overflows the 80×38 box
+  const dna = getDNA();
+  // cap body length so the fish always fits
+  const maxLen = 60;
+  const scaleFactor = Math.min(1, maxLen / dna.bodyLength);
+  dna.bodyLength   *= scaleFactor;
+  dna.dorsalHeight *= scaleFactor;
+  dna.bellyDepth   *= scaleFactor;
+  dna.tailLength   *= scaleFactor;
+  dna.driftAmp     *= scaleFactor;
+  renderFishToCanvas(miniC, miniX, dna, miniT, 0.55);
   requestAnimationFrame(animMini);
 }
 animMini();

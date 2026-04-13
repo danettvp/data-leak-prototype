@@ -25,7 +25,6 @@ html, body {
   color: var(--ink);
 }
 
-/* ✅ LOGO */
 #logo {
   position: fixed;
   top: 28px;
@@ -36,7 +35,6 @@ html, body {
   pointer-events: none;
 }
 
-/* background */
 #tank-bg {
   position: fixed; inset: 0; z-index: 0;
 }
@@ -77,42 +75,41 @@ html, body {
   padding: 36px 44px;
 }
 
-.ui-bottom { 
-  display: flex; 
-  align-items: flex-end; 
-  justify-content: flex-end; 
+.ui-bottom {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
 }
 
-.ui-thesis { 
+.ui-thesis {
   position: fixed;
   bottom: 36px;
   left: 44px;
-
-  font-style: italic; 
-  font-weight: 300; 
-  font-size: clamp(14px,1.8vw,18px); 
-  color: rgba(180,200,230,0.35); 
-  max-width: 320px; 
-  line-height: 1.7; 
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(14px,1.8vw,18px);
+  color: rgba(180,200,230,0.35);
+  max-width: 320px;
+  line-height: 1.7;
 }
 
-.ui-pulse { 
-  display: flex; 
-  align-items: center; 
-  gap: 8px; 
-  font-size: 8px; 
-  letter-spacing: 0.18em; 
-  text-transform: uppercase; 
-  color: rgba(0,200,170,0.35); 
+.ui-pulse {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 8px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(0,200,170,0.35);
 }
 
-.pulse-dot { 
-  width: 5px; 
-  height: 5px; 
-  border-radius: 50%; 
-  background: var(--teal); 
-  opacity: 0.5; 
-  animation: pulse 2.4s ease-in-out infinite; 
+.pulse-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--teal);
+  opacity: 0.5;
+  animation: pulse 2.4s ease-in-out infinite;
 }
 
 @keyframes pulse {
@@ -124,7 +121,6 @@ html, body {
 
 <body>
 
-<!-- LOGO -->
 <img id="logo" src="assets/logo.png" alt="logo">
 
 <div id="tank-bg">
@@ -208,17 +204,12 @@ function mulberry32(seed) {
 }
 
 function generateFishDNA(rng) {
-  /* ── COLOUR: exactly 2 hues, always high-contrast (150–185° apart) ── */
-  // Pick from a curated set of vivid base hues so colours feel distinct
   const huePool = [0, 22, 45, 75, 130, 170, 200, 220, 265, 300, 330];
   const idx1 = Math.floor(rng() * huePool.length);
   const h1 = huePool[idx1];
-  // Second hue: complementary-ish — 150–185° away, always
   const gap = 150 + rng() * 35;
   const h2 = (h1 + (rng() > 0.5 ? gap : -gap) + 360) % 360;
-  // No h3 — two colours only
 
-  /* ── SHAPE: more extreme proportions ── */
   const shapeRoll = rng();
   const shape = shapeRoll < 0.18 ? 'needle'
                : shapeRoll < 0.36 ? 'slim'
@@ -236,12 +227,10 @@ function generateFishDNA(rng) {
     balloon: { dorsalHeight: 150, bellyDepth: 145, bodyLength: 260, roundness: 1.55 },
   }[shape];
 
-  /* Add per-fish jitter to body proportions */
   shapeParams.dorsalHeight *= 0.80 + rng() * 0.40;
   shapeParams.bellyDepth   *= 0.80 + rng() * 0.40;
   shapeParams.bodyLength   *= 0.85 + rng() * 0.30;
 
-  /* ── TAIL ── */
   const tailRoll = rng();
   const tail = tailRoll < 0.25 ? 'forked'
               : tailRoll < 0.50 ? 'fan'
@@ -255,7 +244,6 @@ function generateFishDNA(rng) {
     lunate: { tailAngle: 0.42, tailLength: 100, tailSpread: 1.50 },
   }[tail];
 
-  /* ── LINE DENSITY ── */
   const lineRoll = rng();
   const lineStyle = lineRoll < 0.33 ? 'sparse' : lineRoll < 0.66 ? 'medium' : 'dense';
   const lineParams = {
@@ -264,25 +252,21 @@ function generateFishDNA(rng) {
     dense:  { N: 40 + Math.floor(rng()*22), centreWidth: 2  + rng()*2.5, edgeWidth: 0.4 + rng()*0.8 },
   }[lineStyle];
 
-  /* ── MOTION ── */
+  /* ── MOTION: always wavy or wild, never calm ── */
   const flowRoll = rng();
-  const flow = flowRoll < 0.33 ? 'calm' : flowRoll < 0.66 ? 'wavy' : 'wild';
+  const flow = flowRoll < 0.45 ? 'wavy' : 'wild';
   const flowParams = {
-    calm: { driftAmp:  1 + rng()*2,   driftSpeed: 0.20 + rng()*0.20 },
-    wavy: { driftAmp:  4 + rng()*6,   driftSpeed: 0.40 + rng()*0.35 },
-    wild: { driftAmp: 12 + rng()*10,  driftSpeed: 0.80 + rng()*0.60 },
+    wavy: { driftAmp:  8 + rng()*8,   driftSpeed: 0.9 + rng()*0.6 },
+    wild: { driftAmp: 16 + rng()*12,  driftSpeed: 1.4 + rng()*0.8 },
   }[flow];
 
-  /* ── DORSAL FIN ── */
-  const hasDorsal  = rng() > 0.35;            // slightly more common
+  const hasDorsal  = rng() > 0.35;
   const dorsalPos  = 0.38 + rng() * 0.30;
   const dorsalSize = 15   + rng() * 55;
 
-  /* ── COLOUR INTENSITY: high saturation always, vivid split-tone look ── */
-  const sat          = 75  + rng() * 25;   // 75–100% — always punchy
-  const brightCentre = 68  + rng() * 20;   // core brightness
-  const brightEdge   = 25  + rng() * 20;   // dark edges for contrast
-  // Where along the body the two colours split (0.3–0.65)
+  const sat          = 75  + rng() * 25;
+  const brightCentre = 68  + rng() * 20;
+  const brightEdge   = 25  + rng() * 20;
   const colourSplit  = 0.30 + rng() * 0.35;
 
   return {
@@ -294,12 +278,9 @@ function generateFishDNA(rng) {
   };
 }
 
-// Two-colour interpolation with a sharp crossover at `split`
 function duoHue(t, h1, h2, split) {
-  // Smooth but fairly fast transition in a narrow band around the split
   const band = 0.12;
   const blend = Math.max(0, Math.min(1, (t - (split - band)) / (band * 2)));
-  // Shortest-path interpolation
   let d = ((h2 - h1) + 360) % 360;
   if (d > 180) d -= 360;
   return (h1 + d * blend + 360) % 360;
@@ -317,7 +298,8 @@ function bodySlice(u, dna) {
   return { topY: -dorsalEnv*dna.dorsalHeight - bump, botY: bellyEnv*dna.bellyDepth };
 }
 
-function drawFibreFish(dna, t) {
+function drawFibreFish(dna, t, glowBlend) {
+  glowBlend = glowBlend || 0;
   const N = dna.N;
   const halfLen   = dna.bodyLength / 2;
   const noseX     =  halfLen;
@@ -363,11 +345,13 @@ function drawFibreFish(dna, t) {
     const grd = ctx.createLinearGradient(pts[0].x, pts[0].y, noseX, 0);
     for (let g=0; g<=8; g++) {
       const gt = g/8;
-      // Clean two-colour split — no per-fibre hue twist, colours stay crisp
       const h  = duoHue(gt, dna.h1, dna.h2, dna.colourSplit);
       const l  = dna.brightEdge + centreF*(dna.brightCentre-dna.brightEdge);
       const tf = gt>0.88 ? (1-(gt-0.88)/0.12) : 1;
-      grd.addColorStop(gt, `hsla(${h},${dna.sat}%,${l}%,${alpha*tf})`);
+      // blend saturation and lightness toward white when glowBlend > 0
+      const sat = dna.sat * (1 - glowBlend);
+      const lit = l + (92 - l) * glowBlend;
+      grd.addColorStop(gt, `hsla(${h},${sat}%,${lit}%,${alpha*tf})`);
     }
 
     buildPath();
@@ -405,10 +389,8 @@ function spawnFish(dnaOverride, flockRef, px, py) {
   const rng   = mulberry32(Math.floor(Math.random()*999999));
   const dna   = dnaOverride || generateFishDNA(rng);
 
-  /* ── SIZE: much wider range — from tiny (0.05) to large (0.22) ── */
-  const minScale = 0.04 + Math.random() * 0.04;   // 0.04 – 0.08  (tiny)
-  const maxScale = 0.12 + Math.random() * 0.10;   // 0.12 – 0.22  (large)
-  // pick randomly from that per-fish range
+  const minScale = 0.04 + Math.random() * 0.04;
+  const maxScale = 0.12 + Math.random() * 0.10;
   const scale = minScale + Math.random() * (maxScale - minScale);
 
   const x = px != null ? px : TW*0.12 + Math.random()*TW*0.76;
@@ -421,7 +403,7 @@ function spawnFish(dnaOverride, flockRef, px, py) {
     dna, scale, t: Math.random()*100,
     wander: Math.random()*Math.PI*2, wSpd: (Math.random()-0.5)*0.013,
     opacity: 0, flockId: flockRef ? flockRef.id : -1,
-    glowTimer: 10,
+    glowTimer: 0,
   };
   if (flockRef) flockRef.members.push(fish);
   tankFish.push(fish);
@@ -443,7 +425,11 @@ function assignFlock(fish, nx, ny) {
 }
 
 function updateFish(f) {
-  f.t += 0.015;
+  /* ── time step: much faster so wiggle is visible ── */
+  f.t += 0.042;
+
+
+
   if (f.opacity < 1) f.opacity = Math.min(1, f.opacity + 0.006);
   const myFlock = flocks.find(fl => fl.id === f.flockId);
   let sepX=0,sepY=0,aliX=0,aliY=0,cohX=0,cohY=0,aliN=0;
@@ -482,29 +468,21 @@ function updateFish(f) {
 (function(){
   const TOTAL_FISH = 100;
   const flockCount = Math.ceil(TOTAL_FISH / FLOCK_MAX);
-
-  // create multiple flocks
   const initialFlocks = [];
   for (let i = 0; i < flockCount; i++) {
     initialFlocks.push(createFlock());
   }
-
   for (let i = 0; i < TOTAL_FISH; i++) {
     const fl = initialFlocks[i % flockCount];
-
-    // spread flocks across screen
     const zoneX = (i % flockCount) / flockCount;
     const cx = TW * (0.2 + zoneX * 0.6);
     const cy = TH * (0.3 + Math.random() * 0.4);
-
     setTimeout(() => {
-      spawnFish(
-        null,
-        fl,
+      spawnFish(null, fl,
         cx + (Math.random() - 0.5) * 220,
         cy + (Math.random() - 0.5) * 160
       );
-    }, i * 20); // small stagger so it fades in nicely
+    }, i * 20);
   }
 })();
 
@@ -514,8 +492,8 @@ function addFishToTank(seed,px,py){
   const x=px!=null?px:TW*0.12+Math.random()*TW*0.76;
   const y=py!=null?py:TH*0.12+Math.random()*TH*0.76;
   const f=spawnFish(dna,null,x,y);
+  f.glowTimer = 8.0;
   assignFlock(f,x,y);
-  document.getElementById('fishCount').textContent=tankFish.length;
 }
 
 tankC.addEventListener('click',(e)=>addFishToTank(null,e.clientX,e.clientY));
@@ -527,29 +505,26 @@ window.addEventListener('storage',(e)=>{
    SHARK
 ═══════════════════════════════════════ */
 const sharkEl = document.getElementById('shark');
-const sharkPrompt = document.getElementById('shark-prompt');
 
 const shark = {
   x: TW / 2, y: TH / 2,
   vx: 0.6, vy: 0.3,
   speed: 0.9,
-  w: 280, h: 158,     // updated to match new CSS width
+  w: 280, h: 158,
   active: false,
 };
 
 sharkEl.addEventListener('load', () => {
   shark.active = true;
   sharkEl.style.opacity = '1';
-  sharkPrompt.style.display = 'none';
 });
 sharkEl.addEventListener('error', () => {});
 
-const SHARK_FLEE_RADIUS = 220;  // slightly larger flee zone to match bigger shark
+const SHARK_FLEE_RADIUS = 220;
 const W_FLEE = 0.35;
 
 function updateShark() {
   if (!shark.active) return;
-
   let targetX = TW / 2, targetY = TH / 2, bestSize = 0;
   for (const fl of flocks) {
     if (fl.members.length === 0) continue;
@@ -559,28 +534,23 @@ function updateShark() {
       targetY = fl.members.reduce((s, f) => s + f.y, 0) / fl.members.length;
     }
   }
-
   const dx = targetX - shark.x;
   const dy = targetY - shark.y;
   const d  = Math.hypot(dx, dy) || 1;
   shark.vx += (dx / d) * 0.08;
   shark.vy += (dy / d) * 0.08;
-
   const spd = Math.hypot(shark.vx, shark.vy);
   if (spd > shark.speed) { shark.vx = shark.vx/spd*shark.speed; shark.vy = shark.vy/spd*shark.speed; }
   if (spd < shark.speed * 0.5) { shark.vx = shark.vx/spd*shark.speed*0.5; shark.vy = shark.vy/spd*shark.speed*0.5; }
-
   const m = 80;
   if (shark.x < m)      shark.vx += 0.15;
   if (shark.x > TW - m) shark.vx -= 0.15;
   if (shark.y < m)      shark.vy += 0.12;
   if (shark.y > TH - m) shark.vy -= 0.12;
-
   shark.x += shark.vx;
   shark.y += shark.vy;
   shark.x = Math.max(30, Math.min(TW - 30, shark.x));
   shark.y = Math.max(30, Math.min(TH - 30, shark.y));
-
   const angle  = Math.atan2(shark.vy, shark.vx);
   const flipY  = shark.vx < 0 ? -1 : 1;
   sharkEl.style.left      = (shark.x - shark.w / 2) + 'px';
@@ -588,9 +558,8 @@ function updateShark() {
   sharkEl.style.transform = `rotate(${angle}rad) scaleY(${flipY})`;
 }
 
-const _origUpdateFish = updateFish;
 function updateFishWithFlee(f) {
-  _origUpdateFish(f);
+  updateFish(f);
   if (!shark.active) return;
   const dx = f.x - shark.x;
   const dy = f.y - shark.y;
@@ -602,7 +571,6 @@ function updateFishWithFlee(f) {
   }
 }
 
-
 function loop(){
   ctx.clearRect(0,0,TW,TH);
   for(const fl of flocks){ fl.wander+=fl.wSpd; fl.members=fl.members.filter(f=>tankFish.includes(f)); }
@@ -611,43 +579,63 @@ function loop(){
 
   for(const f of tankFish){
     updateFishWithFlee(f);
-    if(f.glowTimer > 0) f.glowTimer -= 1/60;
+    if (f.glowTimer > 0) f.glowTimer = Math.max(0, f.glowTimer - 1/60);
+
+    // envelope: 1 for first 6s, then fades out over final 2s
+    const glowEnv = f.glowTimer > 0
+      ? Math.min(1, f.glowTimer / 2.0)
+      : 0;
+    // throb: fast pulse, 2.5 cycles/sec
+    const throb = 0.5 + 0.5 * Math.sin(f.t * 10.0);
+    const glowBlend = glowEnv * (0.55 + 0.45 * throb);
+
+    // outer halo — large soft bloom behind the fish
+    if (glowEnv > 0) {
+      const angle   = Math.atan2(f.vy, f.vx);
+      const bodyLen = f.scale * f.dna.bodyLength;
+      const haloR   = bodyLen * (0.32 + 0.18 * throb);
+      const haloA   = glowEnv * (0.18 + 0.22 * throb);
+      const h1      = f.dna.h1;
+
+      ctx.save();
+      ctx.globalAlpha = f.opacity;
+
+      // outermost soft bloom
+      const grad = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, haloR * 2.2);
+      grad.addColorStop(0,   `hsla(${h1}, 60%, 95%, ${haloA * 0.9})`);
+      grad.addColorStop(0.4, `hsla(${h1}, 70%, 88%, ${haloA * 0.5})`);
+      grad.addColorStop(1,   `hsla(${h1}, 80%, 80%, 0)`);
+      ctx.beginPath();
+      ctx.ellipse(f.x, f.y, haloR * 2.2, haloR * 1.1, angle, 0, Math.PI * 2);
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      // tight inner core flash
+      const coreR = bodyLen * (0.10 + 0.08 * throb);
+      const coreA = glowEnv * (0.55 + 0.45 * throb);
+      const core  = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, coreR);
+      core.addColorStop(0,   `rgba(255,255,255,${coreA})`);
+      core.addColorStop(0.5, `rgba(255,255,255,${coreA * 0.4})`);
+      core.addColorStop(1,   `rgba(255,255,255,0)`);
+      ctx.beginPath();
+      ctx.ellipse(f.x, f.y, coreR, coreR * 0.5, angle, 0, Math.PI * 2);
+      ctx.fillStyle = core;
+      ctx.fill();
+
+      ctx.restore();
+    }
 
     ctx.save();
     ctx.globalAlpha = f.opacity;
     ctx.translate(f.x, f.y);
     ctx.rotate(Math.atan2(f.vy, f.vx));
     ctx.scale(f.scale, f.scale);
-    drawFibreFish(f.dna, f.t);
+    drawFibreFish(f.dna, f.t, glowBlend);
     ctx.restore();
-
-    if(f.glowTimer > 0) {
-      const progress  = f.glowTimer / 10;
-      const throb     = 0.5 + 0.5 * Math.sin(f.t * 8);
-      const intensity = progress * throb;
-      const angle     = Math.atan2(f.vy, f.vx);
-      const r = f.scale * f.dna.bodyLength * 0.18;
-
-      ctx.save();
-      ctx.globalAlpha = 1;
-      ctx.shadowColor = 'rgba(255,255,255,1)';
-      ctx.shadowBlur  = 55 * intensity;
-      ctx.beginPath();
-      ctx.ellipse(f.x, f.y, r * 1.3, r * 0.6, angle, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(255,255,255,${0.75 * intensity})`;
-      ctx.fill();
-      ctx.shadowBlur = 25 * intensity;
-      ctx.beginPath();
-      ctx.ellipse(f.x, f.y, r * 0.7, r * 0.32, angle, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(255,255,255,${0.95 * intensity})`;
-      ctx.fill();
-      ctx.restore();
-    }
   }
   requestAnimationFrame(loop);
 }
 loop();
-
 </script>
 </body>
 </html>

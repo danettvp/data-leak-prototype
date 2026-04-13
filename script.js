@@ -78,10 +78,10 @@ const TITLES = [
 ];
 
 const MESSAGES = [
-  `Your fish is small and calm — it moves <strong>deliberately</strong>. You share sparingly and stay sceptical. Your data footprint is yours to define.`,
-  `Your fish is balanced — engaged but considered. You live online with <strong>some intention</strong>. A little more awareness of where your data flows could make it entirely yours.`,
+  `Your fish is small and calm, it moves <strong>deliberately</strong>. You share sparingly and stay sceptical. Your data footprint is yours to define.`,
+  `Your fish is balanced, engaged but considered. You live online with <strong>some intention</strong>. A little more awareness of where your data flows could make it entirely yours.`,
   `Your fish is bright and active. You share openly, and that openness has real value. <strong>Knowing where it goes</strong> is the difference between sharing and being harvested.`,
-  `Your fish is vivid and restless — <strong>fully in the stream</strong>. Your data tells a rich story. The question worth asking: who else is reading it?`
+  `Your fish is vivid and restless, <strong>fully in the stream</strong>. Your data tells a rich story. The question worth asking: who else is reading it?`
 ];
 
 /* ══════════════════════════════════════════

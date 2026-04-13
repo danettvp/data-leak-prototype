@@ -342,30 +342,7 @@ function renderFishToCanvas(canvas, ctx, dna, t, scale) {
   ctx.restore();
 }
 
-/* ══════════════════════════════════════════
-   WELCOME FISH
-══════════════════════════════════════════ */
-const welcomeC = document.getElementById('welcomeCanvas');
-const welcomeX = welcomeC.getContext('2d');
-welcomeC.width  = 520;
-welcomeC.height = 220;
-
-const welcomeRng = mulberry32(42);
-const welcomeDNA = generateFishDNA(welcomeRng);
-welcomeDNA.driftAmp    = 2;
-welcomeDNA.driftSpeed  = 0.22;
-welcomeDNA.N           = 16;
-welcomeDNA.centreWidth = 5;
-welcomeDNA.edgeWidth   = 1.5;
-welcomeDNA.bodyLength *= 0.65;
-
-let welcomeT = 0;
-function animWelcome() {
-  welcomeT += 0.014;
-  renderFishToCanvas(welcomeC, welcomeX, welcomeDNA, welcomeT, 0.38);
-  requestAnimationFrame(animWelcome);
-}
-animWelcome();
+/* welcome fish removed */
 
 /* ══════════════════════════════════════════
    MINI PREVIEW
@@ -409,14 +386,14 @@ function loadQ(idx) {
   selectedOpt = -1;
 
   ['qNum','qText','qSub'].forEach(id => document.getElementById(id).classList.remove('in'));
-  document.getElementById('qInsight').classList.remove('open');
+  
   document.getElementById('btnNext').classList.remove('ready');
 
   document.getElementById('qCounter').textContent     = `0${idx+1} / 0${QS.length}`;
   document.getElementById('qNum').textContent         = `Question 0${idx+1}`;
   document.getElementById('qText').textContent        = q.text;
   document.getElementById('qSub').textContent         = q.sub;
-  document.getElementById('qInsightText').textContent = q.fact;
+  
   document.getElementById('btnNextTxt').textContent   = idx===QS.length-1 ? 'Build my fish  \u2192' : 'Next  \u2192';
 
   const optsEl = document.getElementById('qOptions');
@@ -452,7 +429,7 @@ function pickOpt(i, val, el) {
   selectedOpt       = i;
   answers[currentQ] = val;
   sessionSeed = answers.reduce((acc, v, idx) => acc ^ (v * 6271 + idx * 1009), 314159);
-  setTimeout(() => document.getElementById('qInsight').classList.add('open'), 350);
+  
   setTimeout(() => document.getElementById('btnNext').classList.add('ready'), 500);
 }
 
@@ -478,6 +455,7 @@ function runBuildScreen() {
 
   let bT = 0, step = 0;
   const dna      = getDNA();
+  dna.driftAmp = 18; dna.driftSpeed = 1.4;
   const scale    = Math.min(buildC.offsetWidth, buildC.offsetHeight) / (dna.bodyLength * 3.2);
   const statusEl = document.getElementById('buildStatus');
 
@@ -487,7 +465,7 @@ function runBuildScreen() {
   }, 600);
 
   function animBuild() {
-    bT += 0.018;
+    bT += 0.028;
     renderFishToCanvas(buildC, buildX, dna, bT, scale);
     buildAnimId = requestAnimationFrame(animBuild);
   }
@@ -538,10 +516,11 @@ function buildReveal() {
   }
   sizeRevCanvas();
 
+  dna.driftAmp = 16; dna.driftSpeed = 1.2;
   const scale = Math.min(revC.offsetWidth, revC.offsetHeight) / (dna.bodyLength * 2.8);
   let rT = 0;
   function animReveal() {
-    rT += 0.014;
+    rT += 0.024;
     sizeRevCanvas();
     renderFishToCanvas(revC, revX, dna, rT, scale);
     revealAnimId = requestAnimationFrame(animReveal);

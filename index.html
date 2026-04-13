@@ -13,20 +13,17 @@
 </head>
 <body>
 
+<video id="bgVideo" autoplay muted loop playsinline>
+  <source src="assets/gradient.mov" type="video/mp4">
+</video>
 <canvas id="bgCanvas"></canvas>
 
 <!-- ── WELCOME ── -->
 <div class="screen active" id="s-welcome">
   <div class="w-topbar">
-    <div class="w-brand">Data Leak</div>
+    <img src="assets/logo.png" alt="Data Leak" class="w-logo" />
   </div>
 
-  <!-- Left: fish -->
-  <div class="w-fish-preview">
-    <canvas id="welcomeCanvas"></canvas>
-  </div>
-
-  <!-- Right: copy + buttons -->
   <div class="w-copy">
     <div class="w-title">You leave behind more than you think.</div>
     <div class="w-sub">See how your digital activity takes shape.</div>
@@ -41,18 +38,14 @@
 <div class="screen" id="s-question">
   <div class="q-shell">
     <div class="q-topbar">
-      <div class="q-brand">Data Leak</div>
-      <div class="q-counter" id="qCounter">01 / 04</div>
+      <img src="assets/logo.png" alt="Data Leak" class="q-logo" />
+      <div class="q-counter" id="qCounter">01 / 05</div>
     </div>
     <div class="q-progress" id="qProgress"></div>
     <div class="q-num" id="qNum">Question 01</div>
     <div class="q-text" id="qText"></div>
     <div class="q-sub" id="qSub"></div>
     <div class="q-options" id="qOptions"></div>
-    <div class="q-insight" id="qInsight">
-      <div class="qi-label">Did you know</div>
-      <div class="qi-text" id="qInsightText"></div>
-    </div>
     <div class="q-footer">
       <div class="fish-forming">
         <canvas id="miniCanvas"></canvas>
@@ -74,16 +67,12 @@
 
 <!-- ── REVEAL ── -->
 <div class="screen" id="s-reveal">
-
-  <!-- Left column: eyebrow + fish canvas -->
   <div class="rv-fish-col">
     <div class="rv-eyebrow">Meet your data fish</div>
     <div class="rv-fish-wrap">
       <canvas id="revealCanvas"></canvas>
     </div>
   </div>
-
-  <!-- Right column: title, traits, message, CTA -->
   <div class="rv-info-col">
     <div class="rv-title" id="rvTitle"></div>
     <div class="rv-subtitle">Shaped by your answers. Uniquely yours.</div>
@@ -95,7 +84,6 @@
       </button>
     </div>
   </div>
-
 </div>
 
 <!-- ── RELEASED ── -->

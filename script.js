@@ -78,10 +78,10 @@ const TITLES = [
 ];
 
 const MESSAGES = [
-  `Your fish is small and calm, it moves <strong>deliberately</strong>. You share sparingly and stay sceptical. Your data footprint is yours to define.`,
-  `Your fish is balanced, engaged but considered. You live online with <strong>some intention</strong>. A little more awareness of where your data flows could make it entirely yours.`,
+  `Your fish is small and calm — it moves <strong>deliberately</strong>. You share sparingly and stay sceptical. Your data footprint is yours to define.`,
+  `Your fish is balanced — engaged but considered. You live online with <strong>some intention</strong>. A little more awareness of where your data flows could make it entirely yours.`,
   `Your fish is bright and active. You share openly, and that openness has real value. <strong>Knowing where it goes</strong> is the difference between sharing and being harvested.`,
-  `Your fish is vivid and restless, <strong>fully in the stream</strong>. Your data tells a rich story. The question worth asking: who else is reading it?`
+  `Your fish is vivid and restless — <strong>fully in the stream</strong>. Your data tells a rich story. The question worth asking: who else is reading it?`
 ];
 
 /* ══════════════════════════════════════════
@@ -355,7 +355,7 @@ miniC.height = 68;
 let miniT = 0;
 function animMini() {
   miniT += 0.016;
-  renderFishToCanvas(miniC, miniX, getDNA(), miniT, 0.18);
+  renderFishToCanvas(miniC, miniX, getDNA(), miniT, 0.26);
   requestAnimationFrame(animMini);
 }
 animMini();
@@ -456,7 +456,7 @@ function runBuildScreen() {
   let bT = 0, step = 0;
   const dna      = getDNA();
   dna.driftAmp = 18; dna.driftSpeed = 1.4;
-  const scale    = Math.min(buildC.offsetWidth, buildC.offsetHeight) / (dna.bodyLength * 3.2);
+  const scale    = Math.min(buildC.offsetWidth, buildC.offsetHeight) / (dna.bodyLength * 1.3);
   const statusEl = document.getElementById('buildStatus');
 
   const stepTimer = setInterval(() => {
@@ -517,7 +517,7 @@ function buildReveal() {
   sizeRevCanvas();
 
   dna.driftAmp = 16; dna.driftSpeed = 1.2;
-  const scale = Math.min(revC.offsetWidth, revC.offsetHeight) / (dna.bodyLength * 2.8);
+  const scale = Math.min(revC.offsetWidth, revC.offsetHeight) / (dna.bodyLength * 1.1);
   let rT = 0;
   function animReveal() {
     rT += 0.024;

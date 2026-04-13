@@ -12,7 +12,6 @@ const QS = [
       { t: "Posting it quickly",              v: 1, tag: "Impulsive"  },
       { t: "I don't think too much about it", v: 2, tag: "Relaxed"    },
     ],
-    fact: "The average person generates 1.7MB of data every second — most of it without realising."
   },
   {
     text: "When an app asks for permissions, what do you do?",
@@ -24,7 +23,6 @@ const QS = [
       { t: "Read everything carefully",     v: 1, tag: "Cautious"   },
       { t: "Try to avoid it altogether",    v: 1, tag: "Resistant"  },
     ],
-    fact: "Location data can reveal your home, workplace, religion, and relationships — even without a name attached."
   },
   {
     text: "When an online recommendation feels a little too accurate, how do you respond?",
@@ -36,7 +34,6 @@ const QS = [
       { t: "Feel genuinely uncomfortable",       v: 4, tag: "Uneasy"     },
       { t: "Don't mind — it's convenient",       v: 1, tag: "Accepting"  },
     ],
-    fact: "Ad platforms can infer your mental health, financial stress, and relationships from browsing patterns alone."
   },
   {
     text: "When you stop using a platform, what do you think happens to your data?",
@@ -47,7 +44,6 @@ const QS = [
       { t: "It depends on the platform",      v: 2, tag: "Pragmatic" },
       { t: "I don't really think about that", v: 4, tag: "Unaware"   },
     ],
-    fact: "In 2023 alone, over 4 billion records were exposed in data breaches. Most users were never directly notified."
   },
   {
     text: "How much do you trust online platforms with your personal data?",
@@ -58,7 +54,6 @@ const QS = [
       { t: "I'm careful about what I share", v: 2, tag: "Guarded"   },
       { t: "I don't trust them at all",      v: 1, tag: "Skeptical" },
     ],
-    fact: "Most platform privacy policies are longer than Shakespeare's Hamlet — and designed not to be read."
   }
 ];
 
@@ -78,10 +73,10 @@ const TITLES = [
 ];
 
 const MESSAGES = [
-  `Your fish is small and calm — it moves <strong>deliberately</strong>. You share sparingly and stay sceptical. Your data footprint is yours to define.`,
-  `Your fish is balanced — engaged but considered. You live online with <strong>some intention</strong>. A little more awareness of where your data flows could make it entirely yours.`,
+  `Your fish is small and calm, it moves <strong>deliberately</strong>. You share sparingly and stay sceptical. Your data footprint is yours to define.`,
+  `Your fish is balanced, engaged but considered. You live online with <strong>some intention</strong>. A little more awareness of where your data flows could make it entirely yours.`,
   `Your fish is bright and active. You share openly, and that openness has real value. <strong>Knowing where it goes</strong> is the difference between sharing and being harvested.`,
-  `Your fish is vivid and restless — <strong>fully in the stream</strong>. Your data tells a rich story. The question worth asking: who else is reading it?`
+  `Your fish is vivid and restless, <strong>fully in the stream</strong>. Your data tells a rich story. The question worth asking: who else is reading it?`
 ];
 
 /* ══════════════════════════════════════════
@@ -453,10 +448,19 @@ function runBuildScreen() {
   buildC.height = buildC.offsetHeight * (window.devicePixelRatio||1);
   buildX.scale(window.devicePixelRatio||1, window.devicePixelRatio||1);
 
+  // Generate a fresh random white fish — completely independent of the user's fish
+  const loadingRng = mulberry32(Date.now() & 0xFFFFFF);
+  const loadingDNA = generateFishDNA(loadingRng);
+  // Override motion to be lively
+  loadingDNA.driftAmp   = 14 + loadingRng() * 10;
+  loadingDNA.driftSpeed = 1.2 + loadingRng() * 0.8;
+  // Override colours: white fibres — sat 0, very high lightness
+  loadingDNA.sat          = 0;
+  loadingDNA.brightCentre = 96;
+  loadingDNA.brightEdge   = 72;
+
   let bT = 0, step = 0;
-  const dna      = getDNA();
-  dna.driftAmp = 18; dna.driftSpeed = 1.4;
-  const scale    = Math.min(buildC.offsetWidth, buildC.offsetHeight) / (dna.bodyLength * 1.3);
+  const scale    = Math.min(buildC.offsetWidth, buildC.offsetHeight) / (loadingDNA.bodyLength * 1.3);
   const statusEl = document.getElementById('buildStatus');
 
   const stepTimer = setInterval(() => {
@@ -465,8 +469,8 @@ function runBuildScreen() {
   }, 600);
 
   function animBuild() {
-    bT += 0.028;
-    renderFishToCanvas(buildC, buildX, dna, bT, scale);
+    bT += 0.032;
+    renderFishToCanvas(buildC, buildX, loadingDNA, bT, scale);
     buildAnimId = requestAnimationFrame(animBuild);
   }
   animBuild();

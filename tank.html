@@ -60,7 +60,7 @@ html, body {
 #shark {
   position: fixed;
   z-index: 3;
-  width: 280px;
+  width: 400px;
   pointer-events: none;
   transform-origin: center center;
   opacity: 0;
@@ -510,7 +510,7 @@ const shark = {
   x: TW / 2, y: TH / 2,
   vx: 0.6, vy: 0.3,
   speed: 0.9,
-  w: 280, h: 158,
+  w: 400, h: 226,
   active: false,
 };
 
@@ -525,6 +525,8 @@ const W_FLEE = 0.35;
 
 function updateShark() {
   if (!shark.active) return;
+
+  // Find the largest flock centre to hunt
   let targetX = TW / 2, targetY = TH / 2, bestSize = 0;
   for (const fl of flocks) {
     if (fl.members.length === 0) continue;
@@ -534,28 +536,59 @@ function updateShark() {
       targetY = fl.members.reduce((s, f) => s + f.y, 0) / fl.members.length;
     }
   }
+
+  // Steer gently toward target
   const dx = targetX - shark.x;
   const dy = targetY - shark.y;
   const d  = Math.hypot(dx, dy) || 1;
-  shark.vx += (dx / d) * 0.08;
-  shark.vy += (dy / d) * 0.08;
+  shark.vx += (dx / d) * 0.06;
+  shark.vy += (dy / d) * 0.06;
+
+  // Soft boundary repulsion — wide margin so it never gets close to the edge
+  const margin = 160;
+  const repulse = 0.25;
+  if (shark.x < margin)        shark.vx += repulse * Math.pow(1 - shark.x / margin, 2);
+  if (shark.x > TW - margin)   shark.vx -= repulse * Math.pow(1 - (TW - shark.x) / margin, 2);
+  if (shark.y < margin)        shark.vy += repulse * Math.pow(1 - shark.y / margin, 2);
+  if (shark.y > TH - margin)   shark.vy -= repulse * Math.pow(1 - (TH - shark.y) / margin, 2);
+
+  // Clamp speed — never allow it to stop or go too fast
   const spd = Math.hypot(shark.vx, shark.vy);
-  if (spd > shark.speed) { shark.vx = shark.vx/spd*shark.speed; shark.vy = shark.vy/spd*shark.speed; }
-  if (spd < shark.speed * 0.5) { shark.vx = shark.vx/spd*shark.speed*0.5; shark.vy = shark.vy/spd*shark.speed*0.5; }
-  const m = 80;
-  if (shark.x < m)      shark.vx += 0.15;
-  if (shark.x > TW - m) shark.vx -= 0.15;
-  if (shark.y < m)      shark.vy += 0.12;
-  if (shark.y > TH - m) shark.vy -= 0.12;
+  const minSpd = shark.speed * 0.55;
+  const maxSpd = shark.speed * 1.2;
+  if (spd > maxSpd) { shark.vx = shark.vx/spd*maxSpd; shark.vy = shark.vy/spd*maxSpd; }
+  if (spd < minSpd) {
+    // nudge in current heading rather than snapping to zero
+    const nx = spd > 0.001 ? shark.vx/spd : 1;
+    const ny = spd > 0.001 ? shark.vy/spd : 0;
+    shark.vx = nx * minSpd;
+    shark.vy = ny * minSpd;
+  }
+
   shark.x += shark.vx;
   shark.y += shark.vy;
-  shark.x = Math.max(30, Math.min(TW - 30, shark.x));
-  shark.y = Math.max(30, Math.min(TH - 30, shark.y));
-  const angle  = Math.atan2(shark.vy, shark.vx);
-  const flipY  = shark.vx < 0 ? -1 : 1;
+
+  // Hard clamp well inside the viewport — the repulsion above should prevent hitting this
+  shark.x = Math.max(margin * 0.5, Math.min(TW - margin * 0.5, shark.x));
+  shark.y = Math.max(margin * 0.5, Math.min(TH - margin * 0.5, shark.y));
+
+  // Smooth rotation — interpolate angle to avoid snapping
+  const targetAngle = Math.atan2(shark.vy, shark.vx);
+  if (shark.angle === undefined) shark.angle = targetAngle;
+  // Shortest-path angular lerp
+  let da = targetAngle - shark.angle;
+  while (da >  Math.PI) da -= Math.PI * 2;
+  while (da < -Math.PI) da += Math.PI * 2;
+  shark.angle += da * 0.08;
+
+  const flipY = Math.cos(shark.angle - Math.atan2(shark.vy, shark.vx)) < 0 ? -1 : 1;
+  // use velocity direction for flip, angle for rotation
+  const velAngle = Math.atan2(shark.vy, shark.vx);
+  const flip = (velAngle > Math.PI/2 || velAngle < -Math.PI/2) ? -1 : 1;
+
   sharkEl.style.left      = (shark.x - shark.w / 2) + 'px';
   sharkEl.style.top       = (shark.y - shark.h / 2) + 'px';
-  sharkEl.style.transform = `rotate(${angle}rad) scaleY(${flipY})`;
+  sharkEl.style.transform = `rotate(${shark.angle}rad) scaleY(${flip})`;
 }
 
 function updateFishWithFlee(f) {

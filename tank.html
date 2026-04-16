@@ -581,14 +581,18 @@ function updateShark() {
   while (da < -Math.PI) da += Math.PI * 2;
   shark.angle += da * 0.08;
 
-  const flipY = Math.cos(shark.angle - Math.atan2(shark.vy, shark.vx)) < 0 ? -1 : 1;
-  // use velocity direction for flip, angle for rotation
+  // Flip horizontally when heading left so the shark always reads correctly
   const velAngle = Math.atan2(shark.vy, shark.vx);
-  const flip = (velAngle > Math.PI/2 || velAngle < -Math.PI/2) ? -1 : 1;
+  const facingLeft = Math.abs(velAngle) > Math.PI / 2;
+  // When facing left: rotate by (angle + π) and no flip, OR rotate normally + scaleX(-1)
+  // scaleX flip is simplest — mirrors left/right without touching up/down
+  const flipX = facingLeft ? -1 : 1;
+  // Keep the rotation in the forward-facing half so it doesn't go upside-down
+  const displayAngle = facingLeft ? shark.angle + Math.PI : shark.angle;
 
   sharkEl.style.left      = (shark.x - shark.w / 2) + 'px';
   sharkEl.style.top       = (shark.y - shark.h / 2) + 'px';
-  sharkEl.style.transform = `rotate(${shark.angle}rad) scaleY(${flip})`;
+  sharkEl.style.transform = `rotate(${displayAngle}rad) scaleX(${flipX})`;
 }
 
 function updateFishWithFlee(f) {

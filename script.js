@@ -4,7 +4,6 @@
 const QS = [
   {
     text: "When you post something, what matters most to you?",
-    sub: "Your instinct in the moment — not the ideal answer.",
     opts: [
       { t: "How it looks",                    v: 2, tag: "Curated"    },
       { t: "How it will be perceived",        v: 3, tag: "Conscious"  },
@@ -16,11 +15,11 @@ const QS = [
   },
   {
     text: "When an app asks for permissions, what do you do?",
-    sub: "Location, contacts, camera — that kind of thing.",
+    sub: "Location, contacts, camera, microphone",
     opts: [
       { t: "Accept straight away",          v: 4, tag: "Open"       },
       { t: "Skim quickly, then accept",     v: 3, tag: "Casual"     },
-      { t: "Decide case by case",           v: 2, tag: "Considered" },
+      { t: "Depends on the moment",           v: 2, tag: "Considered" },
       { t: "Read everything carefully",     v: 1, tag: "Cautious"   },
       { t: "Try to avoid it altogether",    v: 1, tag: "Resistant"  },
     ],
@@ -32,15 +31,14 @@ const QS = [
     opts: [
       { t: "Ignore it",                          v: 1, tag: "Unbothered" },
       { t: "Notice it, then move on",            v: 2, tag: "Aware"      },
-      { t: "Get curious — retrace how it knew",  v: 3, tag: "Inquisitive"},
+      { t: "Get curious, retrace how it knew",  v: 3, tag: "Inquisitive"},
       { t: "Feel genuinely uncomfortable",       v: 4, tag: "Uneasy"     },
-      { t: "Don't mind — it's convenient",       v: 1, tag: "Accepting"  },
+      { t: "Don't mind, it's convenient",       v: 1, tag: "Accepting"  },
     ],
     fact: "Ad platforms can infer your mental health, financial stress, and relationships from browsing patterns alone."
   },
   {
     text: "When you stop using a platform, what do you think happens to your data?",
-    sub: "The account goes dormant — but does the data?",
     opts: [
       { t: "It probably just stays there",    v: 3, tag: "Resigned"  },
       { t: "It might get removed over time",  v: 1, tag: "Hopeful"   },
@@ -51,7 +49,6 @@ const QS = [
   },
   {
     text: "How much do you trust online platforms with your personal data?",
-    sub: "Your honest gut feeling.",
     opts: [
       { t: "More than I probably should",    v: 4, tag: "Trusting"  },
       { t: "I generally trust them",         v: 3, tag: "Open"      },
@@ -71,17 +68,17 @@ const TRAIT_MAPS = [
 ];
 
 const TITLES = [
-  'Still waters.',
-  'In the current.',
-  'Moving fast.',
-  'Full broadcast.'
+  'Quiet',
+  'Aware',
+  'Involved',
+  'Visible'
 ];
 
 const MESSAGES = [
   `Your fish is small and calm, it moves <strong>deliberately</strong>. You share sparingly and stay sceptical. Your data footprint is yours to define.`,
   `Your fish is balanced, engaged but considered. You live online with <strong>some intention</strong>. A little more awareness of where your data flows could make it entirely yours.`,
   `Your fish is bright and active. You share openly, and that openness has real value. <strong>Knowing where it goes</strong> is the difference between sharing and being harvested.`,
-  `Your fish is vivid and restless, <strong>fully in the stream</strong>. Your data tells a rich story. The question worth asking: who else is reading it?`
+  `Your fish is vivid and restless, <strong>fully in the stream</strong>. Your data tells a story. The question worth asking: who else is reading it?`
 ];
 
 /* ══════════════════════════════════════════
